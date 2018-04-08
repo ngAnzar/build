@@ -13,14 +13,14 @@ defaultEnv({
     hmr: () => process.env.HMR === "true",
     aot: () => process.env.AOT === "true",
     debug: () => process.env.DEBUG === "true" || environment.valueOf("env") === "develop",
-    cwd: () => {
-        // TODO: check more cases like no --config, onyl config name etc...
-        let re = /webpack.*?--config(?:[=\s]+)(?:(?:(['"])(.*?)\1)|(\S+))/
-        let match = environment.valueOf("npm_lifecycle_script").match(re)
-        let cfgFile = match[2] || match[3]
+    // cwd: () => {
+    //     // TODO: check more cases like no --config, onyl config name etc...
+    //     let re = /webpack.*?--config(?:[=\s]+)(?:(?:(['"])(.*?)\1)|(\S+))/
+    //     let match = environment.valueOf("npm_lifecycle_script").match(re)
+    //     let cfgFile = match[2] || match[3]
 
-        return path.resolve(process.cwd(), path.dirname(cfgFile))
-    },
+    //     return path.resolve(process.cwd(), path.dirname(cfgFile))
+    // },
     tsconfig: () => {
         let tscNames = [`tsconfig.${environment.valueOf("platform")}.json`, "tsconfig.json"]
         for (let tsconfig of tscNames) {
