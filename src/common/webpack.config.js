@@ -6,7 +6,6 @@ import Config, { environment } from "webpack-config"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
 import { root, defaultEnv } from "../helper"
-import PugCompilerPlugin from "../plugins/pug-plugin"
 
 
 defaultEnv({
@@ -30,7 +29,7 @@ defaultEnv({
                 return tscPath
             }
         }
-        throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames)
+        throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
     },
 })
 
@@ -50,8 +49,8 @@ export default new Config().merge({
     resolve: {
         extensions: [".ts", ".js", ".json"],
         modules: [
-            root("src"),
-            root("node_modules")
+            path.join(environment.valueOf("cwd"), "src"),
+            path.join(environment.valueOf("cwd"), "node_modules")
         ],
         plugins: [
             new TsConfigPathsPlugin({
@@ -62,7 +61,7 @@ export default new Config().merge({
 
     resolveLoader: {
         modules: [
-            root("src/build/plugins"),
+            root("src/plugins"),
             root("node_modules")
         ]
     },
@@ -134,7 +133,6 @@ export default new Config().merge({
             "__ENV__": JSON.stringify(environment.valueOf("env")),
             "__PLATFORM__": JSON.stringify(environment.valueOf("platform")),
             "__CSS_VARIABLES__": environment.valueOf("cssVariables"),
-        }),
-        // new PugCompilerPlugin()
+        })
     ]
 })
