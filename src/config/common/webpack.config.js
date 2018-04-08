@@ -5,7 +5,7 @@ import webpack from "webpack"
 import Config, { environment } from "webpack-config"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
-import { root, defaultEnv } from "../helper"
+import { root, defaultEnv } from "../../helper"
 
 
 defaultEnv({
