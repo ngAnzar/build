@@ -17,8 +17,6 @@ const args = require("minimist")(process.argv.slice(2))
 
 if (args.context) {
     environment.set("cwd", path.join(process.cwd(), args.context))
-} else if (args.config) {
-    environment.set("cwd", path.join(process.cwd(), path.dirname(args.config)))
 } else {
     environment.set("cwd", process.cwd())
 }
