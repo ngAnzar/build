@@ -1,5 +1,5 @@
 import fs from "fs"
-import path from path
+import path from "path"
 import { Config, environment } from "webpack-config"
 import { root } from "./helper"
 
