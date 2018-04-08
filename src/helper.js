@@ -3,7 +3,7 @@ import { environment } from "webpack-config"
 
 
 export function root(location) {
-    return path.resolve(__dirname, "..", "..", location)
+    return path.resolve(__dirname, "..", location)
 }
 
 
