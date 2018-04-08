@@ -2,12 +2,12 @@
 
 require("babel-register")({
     cache: true,
-    // ignore: function (filename) {
-    //     if (/@anzar\/build\//.test(filename)) {
-    //         return false
-    //     }
-    //     return /node_modules/.test(filename)
-    // }
+    ignore: function (filename) {
+        if (/@anzar\/build\//.test(filename)) {
+            return false
+        }
+        return /node_modules/.test(filename)
+    }
 })
 
 const path = require("path")
