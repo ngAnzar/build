@@ -3,12 +3,21 @@
 require("babel-register")({
     cache: true,
     ignore: function (filename) {
-        if (/@anzar\//.test(filename)) {
-            console.log(filename, { ignore: false })
-            return false
+        const anzar = filename.indexOf("@anzar")
+        const node_modules = filename.lastIndexOf("node_modules")
+
+        if (anzar >= 0) {
+            if (node_modules < 0) {
+                console.log(filename, { ignore: false })
+                return false
+            } else {
+                console.log(filename, { ignore: anzar > node_modules })
+                return anzar > node_modules;
+            }
+        } else {
+            console.log(filename, { ignore: node_modules !== -1 })
+            return node_modules !== -1
         }
-        console.log(filename, { ignore: !!/node_modules/.test(filename) })
-        return !!/node_modules/.test(filename)
     }
 })
 
