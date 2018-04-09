@@ -41,8 +41,8 @@ export default new Config().merge({
     resolve: {
         extensions: [".ts", ".js", ".json"],
         modules: [
-            path.join(environment.valueOf("cwd"), "src"),
-            path.join(environment.valueOf("cwd"), "node_modules")
+            path.join(environment.valueOf("package_path"), "src"),
+            path.join(environment.valueOf("package_path"), "node_modules")
         ],
         plugins: [
             new TsConfigPathsPlugin({
@@ -54,7 +54,8 @@ export default new Config().merge({
     resolveLoader: {
         modules: [
             root("src/plugins"),
-            root("node_modules")
+            root("node_modules"),
+            path.join(environment.valueOf("package_path"), "node_modules")
         ]
     },
 
