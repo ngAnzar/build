@@ -8,14 +8,11 @@ require("babel-register")({
 
         if (anzar >= 0) {
             if (node_modules < 0) {
-                console.log(filename, { ignore: false })
                 return false
             } else {
-                console.log(filename, { ignore: anzar < node_modules })
                 return anzar < node_modules;
             }
         } else {
-            console.log(filename, { ignore: node_modules !== -1 })
             return node_modules !== -1
         }
     }
