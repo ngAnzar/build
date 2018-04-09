@@ -1,3 +1,4 @@
+import path from "path"
 import { config, environment } from "../../index"
 
 environment.setAll({
