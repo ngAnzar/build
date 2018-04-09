@@ -35,6 +35,7 @@ const package_json = package.__path
 environment.set("package_json", package_json)
 environment.set("package_path", path.dirname(package_json))
 environment.set("package_version", package.version)
+environment.set("dev_server", args._.indexOf("serve") >= 0)
 
 // TODO: maybe set environment variables
 

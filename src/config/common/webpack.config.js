@@ -126,6 +126,7 @@ export default new Config().merge({
             "__ENV__": JSON.stringify(environment.valueOf("env")),
             "__PLATFORM__": JSON.stringify(environment.valueOf("platform")),
             "__CSS_VARIABLES__": environment.valueOf("cssVariables"),
+            "__DEV_SERVER__": environment.valueOf("dev_server")
         })
     ]
 })
