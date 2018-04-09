@@ -3,7 +3,7 @@
 require("babel-register")({
     cache: true,
     ignore: function (filename) {
-        const anzar = filename.indexOf("@anzar")
+        const anzar = filename.lastIndexOf("@anzar")
         const node_modules = filename.lastIndexOf("node_modules")
 
         if (anzar >= 0) {
