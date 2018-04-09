@@ -11,8 +11,8 @@ require("babel-register")({
                 console.log(filename, { ignore: false })
                 return false
             } else {
-                console.log(filename, { ignore: anzar > node_modules })
-                return anzar > node_modules;
+                console.log(filename, { ignore: anzar < node_modules })
+                return anzar < node_modules;
             }
         } else {
             console.log(filename, { ignore: node_modules !== -1 })
