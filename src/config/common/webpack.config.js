@@ -30,7 +30,7 @@ export default new Config().merge({
     mode: environment.valueOf("env") === "develop" ? "development" : "production",
 
     output: {
-        path: root("dist/[env]"),
+        path: path.join(environment.valueOf("package_path"), "dist", "[env]"),
         publicPath: "/",
         filename: "[name].bundle.js",
         chunkFilename: "[name].chunk.js",
