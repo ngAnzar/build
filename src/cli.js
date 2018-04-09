@@ -4,9 +4,11 @@ require("babel-register")({
     cache: true,
     ignore: function (filename) {
         if (/@anzar\//.test(filename)) {
+            console.log(filename, { ignore: false })
             return false
         }
-        return /node_modules/.test(filename)
+        console.log(filename, { ignore: !!/node_modules/.test(filename) })
+        return !!/node_modules/.test(filename)
     }
 })
 
