@@ -2,35 +2,52 @@ import path from "path"
 import fs from "fs"
 
 import webpack from "webpack"
-import Config, { environment } from "webpack-config"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
-import { root, defaultEnv } from "../../helper"
+import { options, defines, config } from "../../src"
+import { root } from "../../src/helper"
 
 
-defaultEnv({
-    env: () => process.env.NODE_ENV || "develop",
-    hmr: () => process.env.HMR === "true",
-    aot: () => process.env.AOT === "true",
-    debug: () => process.env.DEBUG === "true" || environment.valueOf("env") === "develop",
+options.setAllDefault({
+    __ENV__: () => process.env.NODE_ENV || "develop",
+    __HMR__: () => process.env.HMR === "true",
+    __AOT__: () => process.env.AOT === "true",
+    __DEBUG__: () => process.env.DEBUG === "true" || options.__ENV__ === "develop",
+    __MODE__: () => options.__ENV__ === "develop" ? "development" : "production",
     tsconfig: () => {
-        let tscNames = [`tsconfig.${environment.valueOf("platform")}.json`, "tsconfig.json"]
+        let tscNames = [`tsconfig.${options.platform}.json`, "tsconfig.json"]
         for (let tsconfig of tscNames) {
-            let tscPath = path.join(environment.valueOf("cwd"), tsconfig)
+            let tscPath = path.join(options.package_path, tsconfig)
             if (fs.existsSync(tscPath)) {
                 return tscPath
             }
         }
-        throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
+        // throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
     },
+    platform: () => {
+        // throw new Error("platform option is not set")
+        return "browser"
+    },
+
+    cwd: () => process.cwd(),
+    package_path: () => options.cwd
 })
 
 
-export default new Config().merge({
-    mode: environment.valueOf("env") === "develop" ? "development" : "production",
+defines.setAllDefault({
+    __ENV__: () => options.__ENV__,
+    __HMR__: () => options.__HMR__,
+    __AOT__: () => options.__AOT__,
+    __DEBUG__: () => options.__DEBUG__,
+    __MODE__: () => options.__MODE__
+})
+
+
+export default config({
+    mode: "[__MODE__]",
 
     output: {
-        path: path.join(environment.valueOf("package_path"), "dist", "[env]"),
+        path: path.join(options.package_path, "dist", "[__MODE__]"),
         publicPath: "/",
         filename: "[name].bundle.js",
         chunkFilename: "[name].chunk.js",
@@ -41,12 +58,12 @@ export default new Config().merge({
     resolve: {
         extensions: [".ts", ".js", ".json"],
         modules: [
-            path.join(environment.valueOf("package_path"), "src"),
-            path.join(environment.valueOf("package_path"), "node_modules")
+            path.join(options.package_path, "src"),
+            path.join(options.package_path, "node_modules")
         ],
         plugins: [
             new TsConfigPathsPlugin({
-                configFile: environment.valueOf("tsconfig")
+                configFile: options.tsconfig
             })
         ]
     },
@@ -55,7 +72,7 @@ export default new Config().merge({
         modules: [
             root("src/plugins"),
             root("node_modules"),
-            path.join(environment.valueOf("package_path"), "node_modules")
+            path.join(options.package_path, "node_modules")
         ]
     },
 
@@ -67,7 +84,8 @@ export default new Config().merge({
                     {
                         loader: "pug-loader",
                         options: {
-                            pretty: environment.valueOf("env") === "develop"
+                            pretty: options.__ENV__ === "develop",
+                            data: defines.object
                         }
                     }
                 ]
@@ -117,16 +135,8 @@ export default new Config().merge({
     plugins: [
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)(@angular|esm5)/,
-            path.join(environment.valueOf("cwd"), "src")
+            path.join(options.cwd, "src")
         ),
-        new webpack.DefinePlugin({
-            "__DEBUG__": environment.valueOf("debug"),
-            "__HMR__": environment.valueOf("hmr"),
-            "__AOT__": environment.valueOf("aot"),
-            "__ENV__": JSON.stringify(environment.valueOf("env")),
-            "__PLATFORM__": JSON.stringify(environment.valueOf("platform")),
-            "__CSS_VARIABLES__": environment.valueOf("cssVariables"),
-            "__DEV_SERVER__": environment.valueOf("dev_server")
-        })
+        defines.plugin
     ]
 })
