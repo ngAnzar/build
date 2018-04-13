@@ -22,20 +22,24 @@ const path = require("path")
 const findPackage = require("find-package-json")
 const args = require("minimist")(process.argv.slice(2))
 
-const environment = require("./index").environment
+const options = require("./index").options
 
 if (args.context) {
-    environment.set("cwd", path.join(process.cwd(), args.context))
+    options.set("cwd", path.join(process.cwd(), args.context))
 } else {
-    environment.set("cwd", process.cwd())
+    options.set("cwd", process.cwd())
 }
 
-const package = findPackage(environment.valueOf("cwd")).next().value
+const package = findPackage(options.cwd).next().value
 const package_json = package.__path
-environment.set("package_json", package_json)
-environment.set("package_path", path.dirname(package_json))
-environment.set("package_version", package.version)
-environment.set("dev_server", args._.indexOf("serve") >= 0)
+
+options.setAll({
+    package_json: package_json,
+    package_path: package_path,
+    package_version: package_version,
+    isServing: args._.indexOf("serve") >= 0,
+    isHot: !!args.hot
+})
 
 // TODO: maybe set environment variables
 
