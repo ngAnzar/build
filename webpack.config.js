@@ -14,8 +14,14 @@ options.setAllDefault({
     __AOT__: () => process.env.AOT === "true",
     __DEBUG__: () => process.env.DEBUG === "true" || options.__ENV__ === "develop",
     __MODE__: () => options.__ENV__ === "develop" ? "development" : "production",
+    __PLATFORM__: () => {
+        throw new Error("__PLATFORM__ option is not set")
+    },
+
+    cwd: () => process.cwd(),
+    package_path: () => options.cwd,
     tsconfig: () => {
-        let tscNames = [`tsconfig.${options.platform}.json`, "tsconfig.json"]
+        let tscNames = [`tsconfig.${options.__PLATFORM__}.json`, "tsconfig.json"]
         for (let tsconfig of tscNames) {
             let tscPath = path.join(options.package_path, tsconfig)
             if (fs.existsSync(tscPath)) {
@@ -23,13 +29,7 @@ options.setAllDefault({
             }
         }
         // throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
-    },
-    platform: () => {
-        throw new Error("platform option is not set")
-    },
-
-    cwd: () => process.cwd(),
-    package_path: () => options.cwd
+    }
 })
 
 
@@ -38,7 +38,8 @@ defines.setAllDefault({
     __HMR__: () => options.__HMR__,
     __AOT__: () => options.__AOT__,
     __DEBUG__: () => options.__DEBUG__,
-    __MODE__: () => options.__MODE__
+    __MODE__: () => options.__MODE__,
+    __PLATFORM__: () => options.__PLATFORM__
 })
 
 
