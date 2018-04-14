@@ -21,8 +21,6 @@ function extendDataWithDefines(data) {
                         }
                     }
                 }
-            } else if (plugin instanceof HtmlWebpackPlugin) {
-                // addHtmlWebpackPlugin.call(this, plugin, data)
             }
         }
     }
