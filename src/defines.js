@@ -57,8 +57,15 @@ export class Defines extends Options {
         })
     }
 
+    merge(other) {
+        super.merge(other)
+        this.updateProxies()
+    }
+
     get plugin() {
-        return new webpack.DefinePlugin(this[PROXY_PLUGIN])
+        let plugin = new webpack.DefinePlugin(this[PROXY_PLUGIN])
+        plugin.__anzar = true
+        return plugin
     }
 
     get object() {

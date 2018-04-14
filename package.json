@@ -23,6 +23,7 @@
     "@anzar/style": "github:ngAnzar/style",
     "angular2-template-loader": "^0.6.2",
     "babel": "^6.23.0",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "find-package-json": "^1.0.0",
@@ -36,11 +37,27 @@
     "typescript": "^2.8.1",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14",
-    "webpack-config": "^7.5.0"
+    "webpack-merge": "^4.1.2"
   },
   "babel": {
     "presets": [
       "env"
+    ],
+    "plugins": [
+      [
+        "babel-plugin-transform-builtin-extend",
+        {
+          "globals": [
+            "Error",
+            "Array"
+          ]
+        }
+      ]
     ]
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2016": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1"
   }
 }

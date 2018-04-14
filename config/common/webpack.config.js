@@ -139,4 +139,26 @@ export default config({
         ),
         defines.plugin
     ]
+}).ifMode("development", {
+    module: {
+        rules: [
+            {
+                test: /DEV/,
+                use: [
+                    { loader: "ts-loader" }
+                ]
+            }
+        ]
+    }
+}).ifMode("production", {
+    module: {
+        rules: [
+            {
+                test: /PROD/,
+                use: [
+                    { loader: "ts-loader" }
+                ]
+            }
+        ]
+    }
 })

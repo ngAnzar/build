@@ -60,6 +60,13 @@ export class Options {
         }
     }
 
+    merge(other) {
+        for (const k in other[DATA]) {
+            this[DATA][k] = other[DATA][k]
+        }
+        return this
+    }
+
     get data() {
         let data = {}
         this.each((k, v) => {
@@ -82,18 +89,3 @@ export class Options {
 
 const options = new Options()
 export { options }
-
-
-var opt = new Options()
-opt.setAll({
-    almafa: "constant",
-    fn: () => "Function Result"
-})
-
-console.log(opt.almafa)
-console.log(opt.fn)
-console.log(opt.get("almafa"))
-console.log(opt.substitute("almafa-[fn].test"))
-console.log(opt.substitute("almafa-[non-existent].test"))
-
-console.log(opt.data)
