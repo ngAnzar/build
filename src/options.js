@@ -23,6 +23,8 @@ export class Options {
             this.set(k, v)
         }
 
+        console.log(this.data)
+
         let _package_json = null
         this.set("package", () => {
             if (_package_json === null) {
