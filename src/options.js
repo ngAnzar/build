@@ -9,6 +9,8 @@ export class Options {
             configurable: false,
             value: {}
         })
+
+        this.set("___", Math.round(Math.rand() * 1000))
     }
 
     set(key, value) {
