@@ -1,43 +1,47 @@
 import path from "path"
 import fs from "fs"
 
+import resolve from "resolve"
+
 import { Config } from "./config"
 import { root } from "../helper"
 import { options } from "../options"
 
 
 let resolvers = [
-    function(filename) {
-        filename = root(filename)
-        let stat
+    function (name) {
+        let resolved = [
+            resolve.sync(name, { basedir: options.package_path }),
+            resolve.sync(name, { basedir: path.resolve(path.join(__dirname, "..", "..")) })
+        ]
 
-        try {
-            stat = fs.statSync(filename)
-        } catch (e) {
-            return null
-        }
-
-        if (stat.isFile()) {
-            return require(filename)
-        } else if (stat.isDirectory()) {
-            filename = path.join(filename, "webpack.config.js")
-            if (fs.existsSync(filename)) {
-                return require(filename)
+        function isDirectory(p) {
+            try {
+                return fs.statSync(p).isDirectory()
+            } catch (e) {
+                return false
             }
         }
 
-        return null
-    },
-
-    function(filename) {
-        if (!path.isAbsolute(filename)) {
-            let tmp = path.join(options.project_path, filename)
-            if (fs.existsSync(tmp)) {
-                filename = tmp
+        function isFile(p) {
+            try {
+                return fs.statSync(p).isFile()
+            } catch (e) {
+                return false
             }
         }
 
-        return require(filename)
+        for (let r of resolved) {
+            if (r) {
+                if (isDirectory(r)) {
+                    r = path.join(r, "webpack.config.js")
+                }
+
+                if (isFile(r)) {
+                    return require(r)
+                }
+            }
+        }
     }
 ]
 
