@@ -28,6 +28,8 @@ let resolvers = [
             }
         }
 
+        console.log(options.data)
+
         let resolved = [
             find(options.package_path),
             find(path.resolve(path.join(__dirname, "..", "..")))
