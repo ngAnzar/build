@@ -1,5 +1,8 @@
+import fs from "fs"
+import path from "path"
 
 const DATA = Symbol("DATA")
+const ENV_VARS = ["cwd", "package_path", "isServing", "isHot"]
 
 export class Options {
     constructor() {
@@ -8,6 +11,24 @@ export class Options {
             writable: false,
             configurable: false,
             value: {}
+        })
+
+        for (const k of ENV_VARS) {
+            let v = process.env[`anzar_${k}`]
+            if (v === "true") {
+                v = true
+            } else if (v === "false") {
+                v = false
+            }
+            this.set(k, v)
+        }
+
+        let _package_json = null
+        this.set("package", () => {
+            if (_package_json === null) {
+                _package_json = JSON.parse(fs.readSync(path.join(this.package_path, "package.json")))
+            }
+            return _package_json
         })
 
         this.set("___", Math.round(Math.random() * 1000))
@@ -83,7 +104,20 @@ export class Options {
      */
     substitute(templateString) {
         return `${templateString}`.replace(/\[([^\]]+)\]/g, (match, key) => {
-            return this.get(key, match)
+            let parts = key.split(/\./)
+            let base = this.get(parts.shift(), math)
+            if (base === match) {
+                return match
+            }
+
+            for (const p of parts) {
+                base = base[p]
+                if (!base) {
+                    return match
+                }
+            }
+
+            return base
         })
     }
 }

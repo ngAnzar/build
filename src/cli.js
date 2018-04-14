@@ -22,26 +22,15 @@ const path = require("path")
 const findPackage = require("find-package-json")
 const args = require("minimist")(process.argv.slice(2))
 
-const options = require("@anzar/build").options
-
 if (args.context) {
-    options.set("cwd", path.join(process.cwd(), args.context))
+    process.env.anzar_cwd = path.join(process.cwd(), args.context)
 } else {
-    options.set("cwd", process.cwd())
+    process.env.anzar_cwd = process.cwd()
 }
 
-const pckg = findPackage(options.cwd).next().value
-const pckg_json = pckg.__path
-
-options.setAll({
-    package_json: pckg_json,
-    package_path: path.dirname(pckg_json),
-    package_version: pckg.version,
-    isServing: args._.indexOf("serve") >= 0,
-    isHot: !!args.hot
-})
-
-console.log("CLI", options.data)
+process.env.anzar_package_path = findPackage(process.env.anzar_cwd).next().value.__path
+process.env.anzar_isServing = args._.indexOf("serve") >= 0
+process.env.anzar_isHot = !!args.hot
 
 // TODO: maybe set environment variables
 
