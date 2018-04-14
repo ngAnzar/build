@@ -49,7 +49,12 @@ let resolvers = [
 
         for (let r of resolved) {
             if (r) {
-                return require(r)
+                let cfg = require(r)
+                if (cfg.default) {
+                    return cfg.default
+                } else {
+                    return cfg
+                }
             }
         }
     }
