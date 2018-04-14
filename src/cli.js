@@ -22,7 +22,7 @@ const path = require("path")
 const findPackage = require("find-package-json")
 const args = require("minimist")(process.argv.slice(2))
 
-const options = require("./index").options
+const options = require("@anzar/build").options
 
 if (args.context) {
     options.set("cwd", path.join(process.cwd(), args.context))

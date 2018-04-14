@@ -6,7 +6,6 @@ import { Options, options } from "./options"
 const PROXY_PLUGIN = Symbol("PROXY_PLUGIN")
 const PROXY_OBJECT = Symbol("PROXY_OBJECT")
 const PARENT = Symbol("PARENT")
-const DATA = Symbol("DATA")
 
 
 export class DefinesProxy { }
@@ -71,13 +70,6 @@ export class Defines extends Options {
 
     get object() {
         return this[PROXY_OBJECT]
-    }
-
-    _storage() {
-        if (!this[DATA]) {
-            this[DATA] = {}
-        }
-        return this[DATA]
     }
 }
 
