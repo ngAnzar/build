@@ -103,7 +103,7 @@ export class Options {
     substitute(templateString) {
         return `${templateString}`.replace(/\[([^\]]+)\]/g, (match, key) => {
             let parts = key.split(/\./)
-            let base = this.get(parts.shift(), math)
+            let base = this.get(parts.shift(), match)
             if (base === match) {
                 return match
             }
