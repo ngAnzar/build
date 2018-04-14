@@ -1,20 +1,20 @@
 
-const DATA = Symbol("DATA")
+const OPTIONS = Symbol("OPTIONS")
 
 export class Options {
     constructor() {
-        Object.defineProperty(this, DATA, {
-            enumerable: false,
-            writable: false,
-            configurable: false,
-            value: {}
-        })
+        // Object.defineProperty(this, DATA, {
+        //     enumerable: false,
+        //     writable: false,
+        //     configurable: false,
+        //     value: {}
+        // })
 
         this.set("___", Math.round(Math.random() * 1000))
     }
 
     set(key, value) {
-        this[DATA][key] = value
+        this._storage()[key] = value
 
         if (!this.hasOwnProperty(key)) {
             Object.defineProperty(this, key, {
@@ -28,7 +28,7 @@ export class Options {
     }
 
     setDefault(key, value) {
-        if (!this[DATA].hasOwnProperty(key)) {
+        if (!this._storage().hasOwnProperty(key)) {
             this.set(key, value)
         }
     }
@@ -46,7 +46,7 @@ export class Options {
     }
 
     get(key, defaultValue) {
-        const val = this[DATA][key]
+        const val = this._storage()[key]
         if (typeof val === "function") {
             return val(this)
         } else if (val == null) {
@@ -57,14 +57,14 @@ export class Options {
     }
 
     each(cb) {
-        for (const k in this[DATA]) {
+        for (const k in this._storage()) {
             cb(k, this.get(k))
         }
     }
 
     merge(other) {
         for (const k in other[DATA]) {
-            this[DATA][k] = other[DATA][k]
+            this._storage()[k] = other[DATA][k]
         }
         return this
     }
@@ -85,6 +85,13 @@ export class Options {
         return `${templateString}`.replace(/\[([^\]]+)\]/g, (match, key) => {
             return this.get(key, match)
         })
+    }
+
+    _storage() {
+        if (!global[OPTIONS]) {
+            global[OPTIONS] = {}
+        }
+        return global[OPTIONS]
     }
 }
 
