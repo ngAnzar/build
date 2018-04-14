@@ -10,7 +10,7 @@ export class Options {
             value: {}
         })
 
-        this.set("___", Math.round(Math.rand() * 1000))
+        this.set("___", Math.round(Math.random() * 1000))
     }
 
     set(key, value) {
