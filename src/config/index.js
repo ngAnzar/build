@@ -11,12 +11,18 @@ import { options } from "../options"
 let resolvers = [
     function (name) {
         function find(basedir) {
-            try {
-                if (basedir) {
-                    return resolve.sync(name, { basedir })
-                }
-            } catch (e) {
+            if (!basedir) {
                 return null
+            }
+
+            try {
+                return resolve.sync(name, { basedir })
+            } catch (e) {
+                try {
+                    return resolve.sync(path.join(name, "webpack.config.js"), { basedir })
+                } catch (ee) {
+                    return null
+                }
             }
         }
 
@@ -45,13 +51,7 @@ let resolvers = [
 
         for (let r of resolved) {
             if (r) {
-                if (isDirectory(r)) {
-                    r = path.join(r, "webpack.config.js")
-                }
-
-                if (isFile(r)) {
-                    return require(r)
-                }
+                return require(r)
             }
         }
     }
