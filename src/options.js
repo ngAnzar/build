@@ -25,15 +25,11 @@ export class Options {
 
         let _package_json = null
         this.set("package", () => {
-            console.log("package",this.package_path, path.join(this.package_path, "package.json"))
             if (_package_json === null) {
                 _package_json = JSON.parse(fs.readFileSync(path.join(this.package_path, "package.json")))
             }
-            console.log(_package_json)
             return _package_json
         })
-
-        this.set("___", Math.round(Math.random() * 1000))
     }
 
     set(key, value) {

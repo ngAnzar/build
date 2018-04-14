@@ -113,7 +113,7 @@ export class Config extends Array {
                     this.keys.push(k)
                     this.push(this._merge(base, v))
                 } else {
-                    this[idx] = this._merge(this[i], v)
+                    this[idx] = this._merge(this[idx], v)
                 }
             })
         }

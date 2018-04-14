@@ -15,8 +15,6 @@ let resolvers = [
                 return null
             }
 
-            console.log(basedir)
-
             try {
                 return resolve.sync(name, { basedir })
             } catch (e) {
@@ -28,14 +26,10 @@ let resolvers = [
             }
         }
 
-        console.log(options.data)
-
         let resolved = [
             find(options.package_path),
             find(path.resolve(path.join(__dirname, "..", "..")))
         ]
-
-        console.log(resolved)
 
         function isDirectory(p) {
             try {
