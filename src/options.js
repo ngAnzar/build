@@ -25,6 +25,7 @@ export class Options {
 
         let _package_json = null
         this.set("package", () => {
+            console.log("package",this.package_path, path.join(this.package_path, "package.json"))
             if (_package_json === null) {
                 _package_json = JSON.parse(fs.readSync(path.join(this.package_path, "package.json")))
             }
