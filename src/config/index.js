@@ -10,10 +10,22 @@ import { options } from "../options"
 
 let resolvers = [
     function (name) {
+        function find(basedir) {
+            try {
+                if (basedir) {
+                    return resolve.sync(name, { basedir })
+                }
+            } catch (e) {
+                return null
+            }
+        }
+
         let resolved = [
-            resolve.sync(name, { basedir: options.package_path }),
-            resolve.sync(name, { basedir: path.resolve(path.join(__dirname, "..", "..")) })
+            find(options.package_path),
+            find(path.resolve(path.join(__dirname, "..", "..")))
         ]
+
+        console.log(resolved)
 
         function isDirectory(p) {
             try {
