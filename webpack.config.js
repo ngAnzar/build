@@ -4,8 +4,8 @@ import fs from "fs"
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
-import { options, defines, config } from "../../src"
-import { root } from "../../src/helper"
+import { options, defines, config } from "./lib"
+import { root } from "./lib/helper"
 
 
 options.setAllDefault({
@@ -25,8 +25,7 @@ options.setAllDefault({
         // throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
     },
     platform: () => {
-        // throw new Error("platform option is not set")
-        return "browser"
+        throw new Error("platform option is not set")
     },
 
     cwd: () => process.cwd(),
@@ -139,26 +138,4 @@ export default config({
         ),
         defines.plugin
     ]
-}).ifMode("development", {
-    module: {
-        rules: [
-            {
-                test: /DEV/,
-                use: [
-                    { loader: "ts-loader" }
-                ]
-            }
-        ]
-    }
-}).ifMode("production", {
-    module: {
-        rules: [
-            {
-                test: /PROD/,
-                use: [
-                    { loader: "ts-loader" }
-                ]
-            }
-        ]
-    }
 })

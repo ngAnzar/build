@@ -14,16 +14,18 @@
   "bugs": {
     "url": "https://github.com/ngAnzar/build/issues"
   },
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "anzar-build": "src/cli.js"
+    "anzar-build": "lib/cli.js"
+  },
+  "scripts": {
+    "build": "babel src -d lib"
   },
   "homepage": "https://github.com/ngAnzar/build#readme",
   "dependencies": {
     "@anzar/style": "github:ngAnzar/style",
     "angular2-template-loader": "^0.6.2",
     "babel": "^6.23.0",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "find-package-json": "^1.0.0",
@@ -57,7 +59,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-es2016": "^6.24.1",
-    "babel-preset-es2017": "^6.24.1"
+    "babel-plugin-transform-builtin-extend": "^1.1.2"
   }
 }

@@ -30,13 +30,13 @@ if (args.context) {
     options.set("cwd", process.cwd())
 }
 
-const package = findPackage(options.cwd).next().value
-const package_json = package.__path
+const pckg = findPackage(options.cwd).next().value
+const pckg_json = pckg.__path
 
 options.setAll({
-    package_json: package_json,
-    package_path: package_path,
-    package_version: package_version,
+    package_json: pckg_json,
+    package_path: path.dirname(pckg_json),
+    package_version: pckg.version,
     isServing: args._.indexOf("serve") >= 0,
     isHot: !!args.hot
 })

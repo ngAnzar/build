@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "noUnusedLocals": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noEmitOnError": true,
+        // "inlineSources": true,
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        // "emitDecoratorMetadata": true,
+        "noEmit": true,
+        "noEmitHelpers": true,
+        "importHelpers": true,
+        "newLine": "LF"
+    },
+    "compileOnSave": false,
+    "angularCompilerOptions": {
+        "genDir": "./dist/aot",
+        "skipMetadataEmit": true
+    }
+}
