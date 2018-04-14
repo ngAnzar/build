@@ -15,8 +15,13 @@ let resolvers = [
                 return null
             }
 
+            const packageFilter = (pkg) => {
+                pkg.main = "webpack.config.js"
+                return pkg
+            }
+
             try {
-                return resolve.sync(name, { basedir })
+                return resolve.sync(name, { basedir, packageFilter })
             } catch (e) {
                 try {
                     return resolve.sync(path.join(name, "webpack.config.js"), { basedir })
