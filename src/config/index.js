@@ -15,6 +15,8 @@ let resolvers = [
                 return null
             }
 
+            console.log(basedir)
+
             try {
                 return resolve.sync(name, { basedir })
             } catch (e) {
