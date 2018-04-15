@@ -4,8 +4,8 @@ import fs from "fs"
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
-import { options, defines, config } from "./lib"
-import { root } from "./lib/helper"
+import { options, defines, config } from "./src"
+import { root } from "./src/helper"
 
 
 options.setAllDefault({
