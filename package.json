@@ -16,7 +16,7 @@
   },
   "main": "src/index.js",
   "bin": {
-    "anzar-build": "src/cli.js"
+    "anzar-build": "src/cli/index.js"
   },
   "homepage": "https://github.com/ngAnzar/build#readme",
   "dependencies": {
