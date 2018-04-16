@@ -49,7 +49,7 @@ export default config({
     output: {
         path: path.join(options.package_path, "dist", "[__MODE__]"),
         publicPath: "/",
-        filename: "[name]-[package.version].bundle.js",
+        filename: "[name].bundle.js",
         chunkFilename: "[name].chunk.js",
         hashDigestLength: 10,
         sourceMapFilename: "[file].map"
