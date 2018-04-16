@@ -21,11 +21,7 @@ function substOptions(cfg) {
 export class Config extends Array {
     static coerce(config, isMulti) {
         if (config instanceof Config) {
-            if (!isMulti || config.isMulti === isMulti) {
-                return config
-            } else {
-                throw new Error("Cannot convert single config to multiple")
-            }
+            return config
         } else if (isPlainObject(config)) {
             let result = new Config()
 
@@ -95,7 +91,7 @@ export class Config extends Array {
             })
         } else {
             if (this.isMulti && !cfg.isMulti) {
-                throw new Error("Cannot merge, multi config with single config")
+                throw new Error("Cannot update multi config with single config")
             }
 
             let base = {}

@@ -12,6 +12,7 @@
         // "emitDecoratorMetadata": true,
         "noEmit": true,
         "noEmitHelpers": true,
+        "noImplicitAny": true,
         "importHelpers": true,
         "newLine": "LF"
     },

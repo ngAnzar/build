@@ -2,7 +2,6 @@ import fs from "fs"
 import path from "path"
 
 const DATA = Symbol("DATA")
-const ENV_VARS = ["cwd", "package_path", "isServing", "isHot"]
 
 export class Options {
     constructor() {
@@ -11,24 +10,6 @@ export class Options {
             writable: false,
             configurable: false,
             value: {}
-        })
-
-        for (const k of ENV_VARS) {
-            let v = process.env[`anzar_${k}`]
-            if (v === "true") {
-                v = true
-            } else if (v === "false") {
-                v = false
-            }
-            this.set(k, v)
-        }
-
-        let _package_json = null
-        this.set("package", () => {
-            if (_package_json === null) {
-                _package_json = JSON.parse(fs.readFileSync(path.join(this.package_path, "package.json")))
-            }
-            return _package_json
         })
     }
 
@@ -118,8 +99,29 @@ export class Options {
             return base
         })
     }
+
+    loadEnvVars(prefix, vars) {
+        for (const k of vars) {
+            let v = process.env[`${prefix}${k}`]
+            if (v === "true") {
+                v = true
+            } else if (v === "false") {
+                v = false
+            }
+            this.set(k, v)
+        }
+
+        let _package_json = null
+        this.set("package", () => {
+            if (_package_json === null) {
+                _package_json = JSON.parse(fs.readFileSync(path.join(this.package_path, "package.json")))
+            }
+            return _package_json
+        })
+    }
 }
 
 
 const options = new Options()
+options.loadEnvVars("anzar_", ["cwd", "package_path", "isServing", "isHot"])
 export { options }

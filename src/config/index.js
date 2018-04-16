@@ -89,7 +89,7 @@ function factory(isMulti) {
         cfg.update(base)
 
         if (overrides) {
-            cfg.update(overrides)
+            cfg.update(Config.coerce(overrides, isMulti))
         }
 
         return cfg
