@@ -1,11 +1,12 @@
 import path from "path"
-import fs from "fs"
 
 import resolve from "resolve"
 
 import { Config } from "./config"
-import { root } from "../helper"
 import { options } from "../options"
+
+
+export const WEBPACK_CONFIG = "webpack.config.mjs"
 
 
 let resolvers = [
@@ -16,7 +17,7 @@ let resolvers = [
             }
 
             const packageFilter = (pkg) => {
-                pkg.main = "webpack.config.js"
+                pkg.main = WEBPACK_CONFIG
                 return pkg
             }
 
@@ -24,7 +25,7 @@ let resolvers = [
                 return resolve.sync(name, { basedir, packageFilter })
             } catch (e) {
                 try {
-                    return resolve.sync(path.join(name, "webpack.config.js"), { basedir })
+                    return resolve.sync(path.join(name, WEBPACK_CONFIG), { basedir })
                 } catch (ee) {
                     return null
                 }
@@ -36,21 +37,21 @@ let resolvers = [
             find(path.resolve(path.join(__dirname, "..", "..")))
         ]
 
-        function isDirectory(p) {
-            try {
-                return fs.statSync(p).isDirectory()
-            } catch (e) {
-                return false
-            }
-        }
+        // function isDirectory(p) {
+        //     try {
+        //         return fs.statSync(p).isDirectory()
+        //     } catch (e) {
+        //         return false
+        //     }
+        // }
 
-        function isFile(p) {
-            try {
-                return fs.statSync(p).isFile()
-            } catch (e) {
-                return false
-            }
-        }
+        // function isFile(p) {
+        //     try {
+        //         return fs.statSync(p).isFile()
+        //     } catch (e) {
+        //         return false
+        //     }
+        // }
 
         for (let r of resolved) {
             if (r) {

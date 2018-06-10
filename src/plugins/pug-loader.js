@@ -1,5 +1,4 @@
 import webpack from "webpack"
-import HtmlWebpackPlugin from "html-webpack-plugin"
 import util from "loader-utils"
 import pug from "pug"
 
