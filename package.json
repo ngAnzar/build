@@ -15,15 +15,13 @@
     "url": "https://github.com/ngAnzar/build/issues"
   },
   "main": "src/index",
-  "bin": {
-    "anzar-build": "src/cli/index"
-  },
   "homepage": "https://github.com/ngAnzar/build#readme",
   "dependencies": {
     "@anzar/style": "github:ngAnzar/style",
     "angular2-template-loader": "^0.6.2",
     "find-package-json": "^1.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "is-plain-object": "^2.0.4",
     "loader-utils": "^1.1.0",
     "minimist": "^1.2.0",
     "pug": "^2.0.3",

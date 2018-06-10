@@ -1,6 +1,6 @@
 import webpack from "webpack"
 import webpackMerge from "webpack-merge"
-import { isPlainObject } from "lodash"
+import isPlainObject from "is-plain-object"
 
 import { options } from "../options"
 import { Defines, DefinesProxy, defines } from "../defines"
