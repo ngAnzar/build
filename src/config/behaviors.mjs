@@ -6,7 +6,7 @@ import { Defines, DefinesProxy, defines } from "../defines"
 import { options } from "../options"
 
 
-export class Processor {
+export class Behavior {
     init(config, properties) { }
 
     merge(into, what) { }
@@ -15,7 +15,7 @@ export class Processor {
 }
 
 
-export class SpecialProperty extends Processor {
+export class SpecialProperty extends Behavior {
     constructor(key) {
         super()
         this.key = key
@@ -93,7 +93,7 @@ const DEFINES = Symbol("DEFINES")
 
 export class Constants extends SpecialProperty {
     constructor() {
-        super("defines")
+        super("constants")
     }
 
     merge(into, cfg) {
@@ -172,7 +172,7 @@ export class Constants extends SpecialProperty {
 }
 
 
-export class Substitute extends Processor {
+export class Substitute extends Behavior {
     init(cfg) {
         this._do(cfg)
     }
@@ -193,7 +193,7 @@ export class Substitute extends Processor {
 }
 
 
-export class Merge extends Processor {
+export class Merge extends Behavior {
     init(config, properties) {
         if (properties) {
             if (config.isMulti) {

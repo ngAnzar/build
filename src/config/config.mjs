@@ -1,6 +1,8 @@
+import path from "path"
+
 import isPlainObject from "is-plain-object"
 
-import { Merge, WhenMode, Constants, Substitute } from "./processor"
+import { Merge, WhenMode, Constants, Substitute } from "./behaviors"
 
 
 export class Config extends Array {
@@ -126,6 +128,13 @@ export class Config extends Array {
         // this._updateDefines(cfg)
     }
 
+    setPath(path) {
+        Object.defineProperty(this, "path", {
+            value: path
+        })
+        this._updateRelatives()
+    }
+
     // ifMode(mode, overrides) {
     //     overrides = Config.coerce(overrides, this.isMulti)
 
@@ -166,6 +175,33 @@ export class Config extends Array {
         for (const p of this.behaviors) {
             p.postProcess(this)
         }
+    }
+
+    _updateRelatives() {
+        if (!this.path) {
+            return
+        }
+
+        const dirname = path.dirname(this.path.replace(/^[\/\\]+|^file:[\/\\]+|[\/\\]+$/, ""))
+        const subst = (obj) => {
+            if (isPlainObject(obj)) {
+                for (let k in obj) {
+                    obj[k] = subst(obj[k])
+                }
+            } else if (Array.isArray(obj)) {
+                for (let i = 0; i < obj.length; i++) {
+                    obj[i] = subst(obj[i])
+                }
+            } else if (typeof obj === "string" && obj.startsWith("relative://")) {
+                obj = obj.substr(11).replace(/^[\/\\]+|[\/\\]+$/, "")
+                obj = path.join(dirname, obj)
+            }
+            return obj
+        }
+
+        this.each((k, cfg) => {
+            subst(cfg)
+        })
     }
 
     // _updateDefines(cfg) {

@@ -1,6 +1,6 @@
-import webpack from "webpack"
-import util from "loader-utils"
-import pug from "pug"
+const webpack = require("webpack")
+const util = require("loader-utils")
+const pug = require("pug")
 
 
 function extendDataWithDefines(data) {
@@ -51,7 +51,7 @@ function compileHtml(content, ctx) {
 }
 
 
-export default function pugTemplateLoader(content) {
+module.exports = function pugTemplateLoader(content) {
     this.cacheable && this.cacheable()
 
     let data = {}

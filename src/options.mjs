@@ -139,5 +139,5 @@ export class Options {
 
 
 const options = new Options()
-options.loadEnvVars("anzar_", ["cwd", "package_path", "isServing", "isHot"])
+// options.loadEnvVars("anzar_", ["cwd", "package_path", "isServing", "isHot"])
 export { options }

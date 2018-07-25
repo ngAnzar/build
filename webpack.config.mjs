@@ -17,13 +17,10 @@ options.setAllDefault({
     __PLATFORM__: () => {
         throw new Error("__PLATFORM__ option is not set")
     },
-
-    cwd: () => process.cwd(),
-    package_path: () => options.cwd,
     tsconfig: () => {
         let tscNames = [`tsconfig.${options.__PLATFORM__}.json`, "tsconfig.json"]
         for (let tsconfig of tscNames) {
-            let tscPath = path.join(options.package_path, tsconfig)
+            let tscPath = path.join(options.project_path, tsconfig)
             if (fs.existsSync(tscPath)) {
                 return tscPath
             }
@@ -47,7 +44,7 @@ export default config({
     mode: "[__MODE__]",
 
     output: {
-        path: path.join(options.package_path, "dist", "[__MODE__]"),
+        path: path.join(options.project_path, "dist", "[__MODE__]"),
         publicPath: "/",
         filename: "[name].bundle.js",
         chunkFilename: "[name].chunk.js",
@@ -58,8 +55,8 @@ export default config({
     resolve: {
         extensions: [".ts", ".js", ".json"],
         modules: [
-            path.join(options.package_path, "src"),
-            path.join(options.package_path, "node_modules")
+            path.join(options.project_path, "src"),
+            path.join(options.project_path, "node_modules")
         ],
         plugins: [
             new TsConfigPathsPlugin({
@@ -70,10 +67,9 @@ export default config({
 
     resolveLoader: {
         modules: [
-            // TODO: root
-            // root("src/plugins"),
-            // root("node_modules"),
-            path.join(options.package_path, "node_modules")
+            "relative://src/plugins",
+            "relative://node_modules",
+            path.join(options.project_path, "node_modules")
         ]
     },
 
@@ -149,7 +145,7 @@ export default config({
     plugins: [
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)(@angular|esm5)/,
-            path.join(options.cwd, "src")
+            path.join(options.project_path, "src")
         ),
         defines.plugin
     ]

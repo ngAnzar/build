@@ -81,9 +81,18 @@ export async function importConfig(path) {
     if (typeof path === "string") {
         for (const resolve of resolvers) {
             try {
-                return import(await resolve(path))
+                var configPath = await resolve(path)
+                var config = await import(configPath)
             } catch (e) {
-                continue
+                throw e
+            }
+
+            if (config && config.default) {
+                config = await config.default
+                config.setPath(configPath)
+                return config
+            } else {
+                throw new Error("Invalid configuration file, use: `export default config(...)`")
             }
         }
         throw new Error(`cannot find '${path}' config`)
