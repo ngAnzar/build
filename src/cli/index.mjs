@@ -3,6 +3,7 @@ import findPackage from "find-package-json"
 import minimist from "minimist"
 
 import { WEBPACK_CONFIG } from "../config"
+export { Webpack } from "./webpack"
 
 
 export function defaultEnv(name, init) {

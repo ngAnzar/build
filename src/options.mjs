@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import isPlainObject from "is-plain-object"
 
 const DATA = Symbol("DATA")
 
@@ -98,6 +99,21 @@ export class Options {
 
             return base
         })
+    }
+
+    substituteAll(value) {
+        if (isPlainObject(value)) {
+            for (const k in value) {
+                value[k] = this.substituteAll(value[k])
+            }
+        } else if (Array.isArray(value)) {
+            for (let i = 0; i < value.length; i++) {
+                value[i] = this.substituteAll(value[i])
+            }
+        } else if (typeof value === "string") {
+            return this.substitute(value)
+        }
+        return value
     }
 
     loadEnvVars(prefix, vars) {

@@ -1,4 +1,5 @@
 import path from "path"
+import url from "url"
 
 import resolve from "resolve"
 
@@ -9,91 +10,105 @@ import { options } from "../options"
 export const WEBPACK_CONFIG = "webpack.config.mjs"
 
 
+function asUrl(path) {
+    return url.format({
+        pathname: path,
+        protocol: "file:",
+        slashes: true
+    })
+}
+
+
 let resolvers = [
-    function (name) {
-        function find(basedir) {
-            if (!basedir) {
-                return null
-            }
-
-            const packageFilter = (pkg) => {
-                pkg.main = WEBPACK_CONFIG
-                return pkg
-            }
-
-            try {
-                return resolve.sync(name, { basedir, packageFilter })
-            } catch (e) {
-                try {
-                    return resolve.sync(path.join(name, WEBPACK_CONFIG), { basedir })
-                } catch (ee) {
-                    return null
-                }
-            }
+    async function (name) {
+        const packageFilter = (pkg) => {
+            pkg.main = WEBPACK_CONFIG
+            return pkg
         }
-
-        let resolved = [
-            find(options.package_path),
-            find(path.resolve(path.join(__dirname, "..", "..")))
-        ]
-
-        // function isDirectory(p) {
-        //     try {
-        //         return fs.statSync(p).isDirectory()
-        //     } catch (e) {
-        //         return false
-        //     }
-        // }
-
-        // function isFile(p) {
-        //     try {
-        //         return fs.statSync(p).isFile()
-        //     } catch (e) {
-        //         return false
-        //     }
-        // }
-
-        for (let r of resolved) {
-            if (r) {
-                let cfg = require(r)
-                if (cfg.default) {
-                    return cfg.default
+        return new Promise((presolve, reject) => {
+            resolve(name, { basedir: options.package_path, packageFilter }, (err, succ) => {
+                if (err) {
+                    reject(err)
                 } else {
-                    return cfg
+                    presolve(asUrl(succ))
                 }
-            }
-        }
+            })
+        })
     }
+
+    // function (name) {
+    //     function find(basedir) {
+    //         if (!basedir) {
+    //             return null
+    //         }
+
+    //         const packageFilter = (pkg) => {
+    //             pkg.main = WEBPACK_CONFIG
+    //             return pkg
+    //         }
+
+    //         try {
+    //             return resolve.sync(name, { basedir, packageFilter })
+    //         } catch (e) {
+    //             try {
+    //                 return resolve.sync(path.join(name, WEBPACK_CONFIG), { basedir })
+    //             } catch (ee) {
+    //                 return null
+    //             }
+    //         }
+    //     }
+
+    //     let resolved = [
+    //         find(options.package_path),
+    //         find(path.resolve(path.join(__dirname, "..", "..")))
+    //     ]
+
+    //     for (let r of resolved) {
+    //         if (r) {
+    //             let cfg = require(r)
+    //             if (cfg.default) {
+    //                 return cfg.default
+    //             } else {
+    //                 return cfg
+    //             }
+    //         }
+    //     }
+    // }
 ]
 
 
-function getBase(base) {
-    if (typeof base === "string") {
+export async function importConfig(path) {
+    if (typeof path === "string") {
         for (const resolve of resolvers) {
-            let cfg = resolve(base)
-            if (cfg) {
-                return cfg
+            try {
+                return import(await resolve(path))
+            } catch (e) {
+                continue
             }
         }
-        throw new Error(`cannot find '${base}' config`)
+        throw new Error(`cannot find '${path}' config`)
     } else {
-        return base || {}
+        throw new Error(`path '${path}' must be string`)
+    }
+}
+
+
+async function getConfig(config) {
+    if (typeof config === "string") {
+        return importConfig(config)
+    } else {
+        return config || {}
     }
 }
 
 
 function factory(isMulti) {
-    return function (base, overrides) {
-        base = Config.coerce(getBase(base), isMulti)
-
-        let cfg = new Config()
-        cfg.update(base)
-
-        if (overrides) {
-            cfg.update(Config.coerce(overrides, isMulti))
+    return async function (base, overrides) {
+        let result = new Config(null, isMulti)
+        for (let i = 0, l = arguments.length; i < l; i++) {
+            result.update(await getConfig(arguments[i]))
         }
-
-        return cfg
+        return result
     }
 }
 

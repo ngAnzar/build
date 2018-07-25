@@ -48,6 +48,7 @@ export class Defines extends Options {
         let proxyObject = target[PROXY_OBJECT]
 
         this.each((k, v) => {
+            v = this.substituteAll(v)
             if (typeof v === "string") {
                 proxyPlugin[k] = JSON.stringify(v)
             } else {

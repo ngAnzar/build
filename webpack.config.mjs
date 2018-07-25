@@ -5,7 +5,7 @@ import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
 import { options, defines, config } from "./src"
-import { root } from "./src/helper"
+// import { root } from "./src/helper"
 
 
 options.setAllDefault({
@@ -70,8 +70,9 @@ export default config({
 
     resolveLoader: {
         modules: [
-            root("src/plugins"),
-            root("node_modules"),
+            // TODO: root
+            // root("src/plugins"),
+            // root("node_modules"),
             path.join(options.package_path, "node_modules")
         ]
     },
