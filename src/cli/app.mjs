@@ -1,5 +1,6 @@
 import path from "path"
 import argparse from "argparse"
+import util from "util"
 
 import { importConfig } from "../config"
 import { options } from "../options"
@@ -29,8 +30,16 @@ export class Application {
         this.config = await importConfig(configPath)
         let promises = []
 
-        for (const runner of this.runners) {
-            promises.push(runner.run(args))
+        if (args.dump) {
+            process.stdout.write(util.inspect(this.config, { depth: 5, color: true }))
+        } else {
+            if (!args.subcommand) {
+                args.subcommand = "build"
+            }
+
+            for (const runner of this.runners) {
+                promises.push(runner.run(args))
+            }
         }
 
         return Promise.all(promises)
@@ -61,13 +70,32 @@ export class Application {
             }
         )
 
+        // this.args.addArgument(
+        //     ["-w", "--watch"],
+        //     {
+        //         action: "storeTrue",
+        //         defaultValue: false,
+        //         help: "watch file changes"
+        //     }
+        // )
+
         this.args.addArgument(
-            ["-w", "--watch"],
+            ["--dump"],
             {
+                action: "storeTrue",
                 defaultValue: false,
-                help: "watch file changes"
+                help: "dump config"
             }
         )
+
+        const subcommands = this.args.addSubparsers({
+            title: "subcommands",
+            dest: "subcommand"
+        })
+
+        subcommands.addParser("serve")
+        subcommands.addParser("build")
+
 
         for (const runner of this.runners) {
             runner.init(this)

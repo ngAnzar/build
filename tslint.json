@@ -1,0 +1,163 @@
+{
+    "rules": {
+        "max-line-length": {
+            "options": [
+                120
+            ]
+        },
+        "member-access": true,
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "public-static-field",
+                    "public-static-method",
+                    "instance-field",
+                    "constructor",
+                    "instance-method"
+                ]
+            }
+        ],
+        "ban": [
+            true,
+            "eval",
+            {
+                "name": [
+                    "*",
+                    "forEach"
+                ],
+                "message": "Use a regular for loop instead."
+            }
+        ],
+        "prefer-for-of": true,
+        "promise-function-async": true,
+        "await-promise": true,
+        "ban-comma-operator": true,
+        "curly": true,
+        "new-parens": true,
+        "no-arg": true,
+        "no-conditional-assignment": false,
+        "no-duplicate-super": true,
+        "no-duplicate-switch-case": true,
+        "no-duplicate-variable": false,
+        "no-for-in-array": true,
+        "no-invalid-template-strings": true,
+        "no-invalid-this": [
+            true,
+            "check-function-in-method"
+        ],
+        "no-return-await": true,
+        "no-shadowed-variable": true,
+        "no-sparse-arrays": true,
+        "no-string-throw": true,
+        "no-this-assignment": [
+            true,
+            {
+                "allowed-names": [
+                    "^self$"
+                ],
+                "allow-destructuring": true
+            }
+        ],
+        "no-unused-variable": true,
+        "no-use-before-declare": true,
+        "no-var-keyword": true,
+        "prefer-conditional-expression": true,
+        "prefer-object-spread": true,
+        "radix": true,
+        "strict-type-predicates": true,
+        "triple-equals": [
+            true,
+            "allow-null-check"
+        ],
+        "typeof-compare": true,
+        "use-isnan": true,
+        "deprecation": true,
+        "indent": [
+            true,
+            "spaces",
+            4
+        ],
+        "array-type": [
+            true,
+            "array-simple"
+        ],
+        "binary-expression-operand-order": true,
+        "class-name": true,
+        "comment-format": [
+            true,
+            "check-space",
+            "check-lowercase",
+            {
+                "ignore-words": [
+                    "TODO",
+                    "HACK"
+                ]
+            }
+        ],
+        "encoding": true,
+        "file-name-casing": [
+            true,
+            "kebab-case"
+        ],
+        "import-spacing": true,
+        "interface-over-type-literal": true,
+        "newline-before-return": true,
+        "newline-per-chained-call": true,
+        "no-angle-bracket-type-assertion": true,
+        "no-consecutive-blank-lines": [
+            true,
+            2
+        ],
+        "no-irregular-whitespace": true,
+        "no-unnecessary-callback-wrapper": true,
+        "no-unnecessary-initializer": true,
+        "no-unnecessary-qualifier": true,
+        "number-literal-format": true,
+        "object-literal-key-quotes": [
+            true,
+            "as-needed"
+        ],
+        "one-variable-per-declaration": [
+            true,
+            "ignore-for-loop"
+        ],
+        "prefer-method-signature": true,
+        "prefer-switch": true,
+        "prefer-template": true,
+        "quotemark": [
+            true,
+            "double",
+            "avoid-escape"
+        ],
+        "semicolon": [
+            true,
+            "never"
+        ],
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-trailing-underscore",
+            "allow-snake-case"
+        ],
+        "whitespace": true,
+        "trailing-comma": [
+            true,
+            "never"
+        ]
+    },
+    "jsRules": {
+        "max-line-length": {
+            "options": [
+                120
+            ]
+        },
+        "radix": true,
+        "indent": [
+            true,
+            "spaces",
+            4
+        ]
+    }
+}

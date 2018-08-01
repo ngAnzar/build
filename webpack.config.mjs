@@ -5,15 +5,15 @@ import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 
 import { options, defines, config } from "./src"
+import { filterByEntryPoint } from "./src/util"
 // import { root } from "./src/helper"
 
-
 options.setAllDefault({
-    __ENV__: () => process.env.NODE_ENV || "develop",
+    __ENV__: () => process.env.NODE_ENV || "development",
     __HMR__: () => process.env.HMR === "true",
     __AOT__: () => process.env.AOT === "true",
-    __DEBUG__: () => process.env.DEBUG === "true" || options.__ENV__ === "develop",
-    __MODE__: () => options.__ENV__ === "develop" ? "development" : "production",
+    __DEBUG__: () => process.env.DEBUG === "true" || options.__ENV__ === "development",
+    __MODE__: () => options.__ENV__ === "development" ? "development" : "production",
     __PLATFORM__: () => {
         throw new Error("__PLATFORM__ option is not set")
     },
@@ -42,6 +42,7 @@ defines.setAllDefault({
 
 export default config({
     mode: "[__MODE__]",
+    devtool: options.__MODE__ === "development" ? "cheap-module-eval-source-map" : false,
 
     output: {
         path: path.join(options.project_path, "dist", "[__MODE__]"),
@@ -53,7 +54,7 @@ export default config({
     },
 
     resolve: {
-        extensions: [".ts", ".js", ".json"],
+        extensions: [".ts", ".tsx", ".js", ".json"],
         modules: [
             path.join(options.project_path, "src"),
             path.join(options.project_path, "node_modules")
@@ -62,7 +63,10 @@ export default config({
             new TsConfigPathsPlugin({
                 configFile: options.tsconfig
             })
-        ]
+        ],
+        alias: {
+            "webpack-hot-client/client": "relative://node_modules/webpack-hot-client/client"
+        }
     },
 
     resolveLoader: {
@@ -73,15 +77,34 @@ export default config({
         ]
     },
 
+    watchOptions: {
+        ignored: /node_modules[\\\/](?!@anzar)/ig
+    },
+
     optimization: {
+        minimize: options.__MODE__ !== "development",
         splitChunks: {
             cacheGroups: {
-                default: false,
-                commons: {
+                default: {
+                    reuseExistingChunk: true,
+                    priority: -20
+                },
+                vendor: {
                     test: /[\\/]node_modules[\\/]/,
+                    reuseExistingChunk: true,
                     name: "vendor",
-                    chunks: "all"
-                }
+                    chunks: "all",
+                    enforce: true,
+                    priority: -10
+                },
+                // polyfills: {
+                //     test: filterByEntryPoint("polyfills"),
+                //     reuseExistingChunk: true,
+                //     name: "polyfills",
+                //     chunks: "all",
+                //     enforce: true,
+                //     priority: 10
+                // }
             }
         }
     },
@@ -101,7 +124,25 @@ export default config({
                 ]
             },
             {
-                test: /\.ts$/,
+                test: /\.tsx?/,
+                use: [
+                    {
+                        loader: "awesome-typescript-loader",
+                        options: {
+                            configFileName: options.tsconfig,
+                            useBabel: true,
+                            babelOptions: {
+                                babelrc: true
+                            },
+                            babelCore: "@babel/core",
+                            useCache: true,
+                            ignoreDiagnostics: [2451]
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.aaaats$/,
                 exclude: [/\.(spec|e2e|aot)\.ts$/],
                 use: [
                     // {
@@ -118,7 +159,7 @@ export default config({
                     {
                         loader: "ts-loader",
                         options: {
-                            transpileOnly: true
+                            // transpileOnly: true
                         }
                     },
                     /*{
@@ -144,7 +185,7 @@ export default config({
 
     plugins: [
         new webpack.ContextReplacementPlugin(
-            /angular(\\|\/)core(\\|\/)(@angular|esm5)/,
+            /angular(\\|\/)core(\\|\/)(@angular|f?esm5)/,
             path.join(options.project_path, "src")
         ),
         defines.plugin

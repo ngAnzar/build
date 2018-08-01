@@ -79,7 +79,7 @@ export class WhenMode extends SpecialProperty {
         for (let mode in value) {
             result.push((cfg, k, v, i) => {
                 if (v.mode === mode && (!multiKey || multiKey === k)) {
-                    cfg[i] = mergeProps(v, value[mode])
+                    cfg[i] = mergeProps(v, value[mode](v, k, i, cfg))
                 }
             })
         }
@@ -119,7 +119,7 @@ export class Constants extends SpecialProperty {
             result.push((cfg, k, v, i) => {
                 if (!multiKey || multiKey === k) {
                     cfg[DEFINES][i].set(name, () => {
-                        return value[name](cfg, k, v, i)
+                        return value[name](v, k, i, cfg)
                     })
                 }
             })
