@@ -3,6 +3,7 @@ import fs from "fs"
 
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
+import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
 
 import { options, defines, config } from "./src"
 import { filterByEntryPoint } from "./src/util"
@@ -40,9 +41,13 @@ defines.setAllDefault({
 })
 
 
+const isDev = options.__MODE__ === "development"
+
+
 export default config({
     mode: "[__MODE__]",
-    devtool: options.__MODE__ === "development" ? "cheap-module-eval-source-map" : false,
+    devtool: isDev ? "cheap-module-eval-source-map" : false,
+    // devtool: false,
 
     output: {
         path: path.join(options.project_path, "dist", "[__MODE__]"),
@@ -55,6 +60,14 @@ export default config({
 
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".json"],
+        mainFields: [
+            (isDev ? "f" : "") + "esm6",
+            (isDev ? "f" : "") + "esm2015",
+            (isDev ? "f" : "") + "esm5",
+            options.__PLATFORM__,
+            "module",
+            "main"
+        ],
         modules: [
             path.join(options.project_path, "src"),
             path.join(options.project_path, "node_modules")
@@ -82,8 +95,9 @@ export default config({
     },
 
     optimization: {
-        minimize: options.__MODE__ !== "development",
+        minimize: !isDev,
         splitChunks: {
+            // maxSize: 2 * 1024 * 1024,
             cacheGroups: {
                 default: {
                     reuseExistingChunk: true,
@@ -117,7 +131,7 @@ export default config({
                     {
                         loader: "pug-loader",
                         options: {
-                            pretty: options.__ENV__ === "develop",
+                            pretty: isDev,
                             data: defines.object
                         }
                     }
@@ -185,9 +199,12 @@ export default config({
 
     plugins: [
         new webpack.ContextReplacementPlugin(
-            /angular(\\|\/)core(\\|\/)(@angular|f?esm5)/,
+            /angular(\\|\/)core(\\|\/)(@angular|f?esm5|f?esm2015)/,
             path.join(options.project_path, "src")
         ),
+        new DuplicatePackageCheckerPlugin({
+            verbose: true
+        }),
         defines.plugin
     ]
 })

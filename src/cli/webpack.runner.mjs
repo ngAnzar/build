@@ -30,7 +30,8 @@ export class WebpackRunner extends AbstractRunner {
             hotClient: {
                 // allEntries: true,
                 host: config.devServer.host,
-                logLevel: "error"
+                logLevel: "error",
+                autoConfigure: true
                 // https: config.devServer.https
             },
             content: config.devServer.contentBase
