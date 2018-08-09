@@ -9,7 +9,9 @@ import { options } from "../options"
 export class Application {
     constructor(name, runners) {
         this.args = new argparse.ArgumentParser({
-            prog: name
+            prog: name,
+            description: "description",
+            epilog: "epilog"
         })
         this.runners = runners
         this.config = null
@@ -18,7 +20,12 @@ export class Application {
     }
 
     async run() {
-        const args = this.args.parseArgs()
+        const command = ["serve", "build"].indexOf(process.argv[2]) > -1
+            ? process.argv[2]
+            : null
+        const argv = process.argv.slice(command ? 3 : 2)
+        const args = this.args.parseArgs(argv)
+
         const configPath = path.isAbsolute(args.config)
             ? args.config
             : path.join(args.project, args.config)
@@ -33,9 +40,10 @@ export class Application {
         if (args.dump) {
             process.stdout.write(util.inspect(this.config, { depth: 5, color: true }))
         } else {
-            if (!args.subcommand) {
-                args.subcommand = "build"
+            if (!command) {
+                this.args.error(`Missing command parameter: ${this.args.prog} {serve,build}`)
             }
+            args.subcommand = command
 
             for (const runner of this.runners) {
                 promises.push(runner.run(args))
@@ -46,6 +54,7 @@ export class Application {
     }
 
     _initArgs() {
+
         this.args.addArgument(
             ["-p", "--project"],
             {
@@ -88,18 +97,17 @@ export class Application {
             }
         )
 
-        const subcommands = this.args.addSubparsers({
-            title: "subcommands",
-            dest: "subcommand"
-        })
-
-        subcommands.addParser("serve")
-        subcommands.addParser("build")
-
-
         for (const runner of this.runners) {
             runner.init(this)
         }
+
+        // const subcommands = this.args.addSubparsers({
+        //     title: "subcommands",
+        //     dest: "subcommand"
+        // })
+
+        // subcommands.addParser("serve")
+        // subcommands.addParser("build")
     }
 }
 

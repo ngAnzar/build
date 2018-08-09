@@ -16,7 +16,7 @@ export class Config extends Array {
         }
     }
 
-    constructor(cfg, forcedMulti) {
+    constructor(cfg, forcedMulti, path) {
         super()
         Object.defineProperty(this, "keys", {
             value: []
@@ -36,6 +36,7 @@ export class Config extends Array {
         })
 
         this._init(cfg)
+        this.setPath(path)
     }
 
     get isMulti() {
@@ -76,7 +77,8 @@ export class Config extends Array {
 
     setPath(path) {
         Object.defineProperty(this, "path", {
-            value: path
+            value: path,
+            configurable: true
         })
         this._updateRelatives()
     }

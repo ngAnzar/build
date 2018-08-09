@@ -20,13 +20,14 @@ function asUrl(path) {
 
 
 let resolvers = [
-    async function (name) {
+    async function (name, relativeFrom) {
+        const relFrom = relativeFrom ? path.dirname(relativeFrom) : options.project_path
         const packageFilter = (pkg) => {
             pkg.main = WEBPACK_CONFIG
             return pkg
         }
         return new Promise((presolve, reject) => {
-            resolve(name, { basedir: options.package_path, packageFilter }, (err, succ) => {
+            resolve(name, { basedir: relFrom, packageFilter }, (err, succ) => {
                 if (err) {
                     reject(err)
                 } else {
@@ -77,11 +78,17 @@ let resolvers = [
 ]
 
 
-export async function importConfig(path) {
+export async function importConfig(path, relativeFrom) {
     if (typeof path === "string") {
         for (const resolve of resolvers) {
             try {
-                var configPath = await resolve(path)
+                var configPath = await resolve(path, relativeFrom)
+            } catch (e) {
+                console.log(e.toString())
+                continue
+            }
+
+            try {
                 var config = await import(configPath)
             } catch (e) {
                 throw e
@@ -102,9 +109,9 @@ export async function importConfig(path) {
 }
 
 
-async function getConfig(config) {
+async function getConfig(config, relativeFrom) {
     if (typeof config === "string") {
-        return importConfig(config)
+        return importConfig(config, relativeFrom)
     } else {
         return config || {}
     }
@@ -113,12 +120,30 @@ async function getConfig(config) {
 
 function factory(isMulti) {
     return async function (base, overrides) {
-        let result = new Config(null, isMulti)
+        let stack = getStack()
+        let callerStack = stack[1]
+        let callerUri = callerStack.getFileName()
+        let configPath = url.parse(callerUri).path.replace(/^[\\\/]+|[\\\/]+$/, "")
+        let result = new Config(null, isMulti, configPath)
         for (let i = 0, l = arguments.length; i < l; i++) {
-            result.update(await getConfig(arguments[i]))
+            result.update(await getConfig(arguments[i], configPath))
         }
         return result
     }
+}
+
+
+function getStack() {
+    let origPrepareStackTrace = Error.prepareStackTrace
+    Error.prepareStackTrace = function (_, stack) {
+        return stack
+    }
+
+    let err = new Error()
+    let stack = err.stack
+    Error.prepareStackTrace = origPrepareStackTrace
+    stack.shift()
+    return stack
 }
 
 

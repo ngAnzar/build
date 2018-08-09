@@ -8,6 +8,11 @@
         "experimentalDecorators": true,
         "importHelpers": true,
         "noImplicitAny": true,
-        "removeComments": true
+        "removeComments": true,
+        "lib": [
+            "es5",
+            "es6",
+            "dom"
+        ]
     }
 }

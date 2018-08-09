@@ -52,10 +52,10 @@ export default config({
     output: {
         path: path.join(options.project_path, "dist", "[__MODE__]"),
         publicPath: "/",
-        filename: "[name].bundle.js",
-        chunkFilename: "[name].chunk.js",
-        hashDigestLength: 10,
-        sourceMapFilename: "[file].map"
+        filename: "js/[name].bundle.js",
+        chunkFilename: "js/[name].chunk.js",
+        sourceMapFilename: "[file].map",
+        hashDigestLength: 10
     },
 
     resolve: {
@@ -103,10 +103,10 @@ export default config({
                     reuseExistingChunk: true,
                     priority: -20
                 },
-                vendor: {
+                vendors: {
                     test: /[\\/]node_modules[\\/]/,
                     reuseExistingChunk: true,
-                    name: "vendor",
+                    name: "vendors",
                     chunks: "all",
                     enforce: true,
                     priority: -10
