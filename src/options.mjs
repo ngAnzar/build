@@ -34,6 +34,46 @@ export class Options {
         }
     }
 
+    extend(key, withValue) {
+        let prevValue = this[DATA][key] || null
+
+        this.set(key, () => {
+            let newValue = typeof withValue === "function" ? withValue() : withValue
+
+            if (prevValue && newValue) {
+                if (Array.isArray(prevValue)) {
+                    prevValue = prevValue.slice()
+                    if (!Array.isArray(newValue)) {
+                        newValue = [newValue]
+                    }
+                    for (let v of newValue) {
+                        if (prevValue.indexOf(v) === -1) {
+                            prevValue.push(v)
+                        }
+                    }
+
+                    return prevValue
+                } else if (isPlainObject(prevValue)) {
+                    if (isPlainObject(newValue)) {
+                        return { ...prevValue, ...newValue }
+                    } else {
+                        throw new Error("Cannot merge plain object with other type of value")
+                    }
+                } else {
+                    if (Array.isArray(newValue)) {
+                        newValue = newValue.slice()
+                        newValue.unshift(prevValue)
+                        return newValue
+                    } else {
+                        return [prevValue, newValue]
+                    }
+                }
+            } else {
+                return newValue
+            }
+        })
+    }
+
     setAll(data) {
         for (const k in data) {
             this.set(k, data[k])
@@ -139,5 +179,6 @@ export class Options {
 
 
 const options = new Options()
+const stylusOptions = new Options()
 // options.loadEnvVars("anzar_", ["cwd", "package_path", "isServing", "isHot"])
-export { options }
+export { options, stylusOptions }

@@ -102,8 +102,8 @@
         ],
         "import-spacing": true,
         "interface-over-type-literal": true,
-        "newline-before-return": true,
-        "newline-per-chained-call": true,
+        "newline-before-return": false,
+        "newline-per-chained-call": false,
         "no-angle-bracket-type-assertion": true,
         "no-consecutive-blank-lines": [
             true,

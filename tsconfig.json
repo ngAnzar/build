@@ -6,6 +6,7 @@
         "sourceMap": true,
         "noEmitHelpers": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "importHelpers": true,
         "noImplicitAny": true,
         "removeComments": true,

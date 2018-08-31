@@ -1,10 +1,13 @@
 import path from "path"
 import fs from "fs"
 
+import resolve from "resolve"
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
+import ExtractTextPlugin from "extract-text-webpack-plugin"
 
+import nzStyle from "./src/plugins/style"
 import { options, defines, config } from "./src"
 import { filterByEntryPoint } from "./src/util"
 // import { root } from "./src/helper"
@@ -41,7 +44,14 @@ defines.setAllDefault({
 })
 
 
+// stylus.options.setAllDefault({
+//     compress: true
+// })
+
 const isDev = options.__MODE__ === "development"
+// console.log(resolve.sync("webpack-hot-client/client"))
+const extractCssPlugin = new ExtractTextPlugin("css/[name].css")
+const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
 
 
 export default config({
@@ -59,10 +69,12 @@ export default config({
     },
 
     resolve: {
-        extensions: [".ts", ".tsx", ".js", ".json"],
+        symlinks: true,
+        extensions: [".ts", ".tsx", ".js", ".json", ".css", ".styl", ".stylus"],
         mainFields: [
             (isDev ? "f" : "") + "esm6",
             (isDev ? "f" : "") + "esm2015",
+            (isDev ? "f" : "") + "es2015",
             (isDev ? "f" : "") + "esm5",
             options.__PLATFORM__,
             "module",
@@ -78,7 +90,7 @@ export default config({
             })
         ],
         alias: {
-            "webpack-hot-client/client": "relative://node_modules/webpack-hot-client/client"
+            // "webpack-hot-client/client": resolve.sync("webpack-hot-client/client")
         }
     },
 
@@ -91,7 +103,7 @@ export default config({
     },
 
     watchOptions: {
-        ignored: /node_modules[\\\/](?!@anzar)/ig
+        ignored: [/node_modules[\\\/](?!@anzar)/ig]
     },
 
     optimization: {
@@ -132,10 +144,35 @@ export default config({
                         loader: "pug-loader",
                         options: {
                             pretty: isDev,
-                            data: defines.object
+                            doctype: "html",
+                            data: defines.object,
+                            stylus: {
+                                compress: true,
+                                imports: options.stylusImports
+                            }
                         }
                     }
                 ]
+            },
+            {
+                test: /\.styl(us)?$/,
+                use: extractCssPlugin.extract([
+                    {
+                        loader: "stylus-loader",
+                        options: {
+                            compress: true,
+                            imports: options.stylusImports
+                        }
+                    }
+                ])
+                // use: [
+                //     {
+                //         loader: "stylus-loader",
+                //         options: {
+
+                //         }
+                //     }
+                // ]
             },
             {
                 test: /\.tsx?/,
@@ -153,37 +190,6 @@ export default config({
                             ignoreDiagnostics: [2451]
                         }
                     }
-                ]
-            },
-            {
-                test: /\.aaaats$/,
-                exclude: [/\.(spec|e2e|aot)\.ts$/],
-                use: [
-                    // {
-                    //     /**
-                    //      *  MAKE SURE TO CHAIN VANILLA JS CODE, I.E. TS COMPILATION OUTPUT.
-                    //      */
-                    //     loader: "ng-router-loader",
-                    //     options: {
-                    //         loader: "async-require",
-                    //         genDir: root("dist/aot"), // TODO:
-                    //         aot: environment.valueOf("aot")
-                    //     }
-                    // },
-                    {
-                        loader: "ts-loader",
-                        options: {
-                            // transpileOnly: true
-                        }
-                    },
-                    /*{
-                        loader: "ngc-webpack",
-                        options: {
-                            disable: !environment.valueOf("aot"),
-                            tsConfig: root("tools/build/tsconfig.webpack.json"),
-                        }
-                    },*/
-
                 ]
             },
             {
@@ -205,6 +211,8 @@ export default config({
         new DuplicatePackageCheckerPlugin({
             verbose: true
         }),
-        defines.plugin
+        defines.plugin,
+        cssPlugin,
+        extractCssPlugin
     ]
 })
