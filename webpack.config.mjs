@@ -50,7 +50,6 @@ defines.setAllDefault({
 
 const isDev = options.__MODE__ === "development"
 // console.log(resolve.sync("webpack-hot-client/client"))
-const extractCssPlugin = new ExtractTextPlugin("css/[name].css")
 const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
 
 
@@ -156,23 +155,16 @@ export default config({
             },
             {
                 test: /\.styl(us)?$/,
-                use: extractCssPlugin.extract([
-                    {
-                        loader: "stylus-loader",
-                        options: {
-                            compress: true,
-                            imports: options.stylusImports
-                        }
-                    }
-                ])
-                // use: [
-                //     {
-                //         loader: "stylus-loader",
-                //         options: {
-
-                //         }
-                //     }
-                // ]
+                use: [
+                    cssPlugin.extract(),
+                    { loader: "stylus-loader" }
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    cssPlugin.extract()
+                ]
             },
             {
                 test: /\.tsx?/,
@@ -212,7 +204,6 @@ export default config({
             verbose: true
         }),
         defines.plugin,
-        cssPlugin,
-        extractCssPlugin
+        cssPlugin
     ]
 })

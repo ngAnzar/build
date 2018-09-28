@@ -139,6 +139,7 @@
             "ban-keywords",
             "check-format",
             "allow-trailing-underscore",
+            "allow-leading-underscore",
             "allow-snake-case"
         ],
         "whitespace": true,

@@ -9,6 +9,7 @@ const nzStyle = require("@anzar/style")
 const stylusLoader = require("./stylus-loader")
 const utils = require("./utils")
 const styleRegistry = require("./style")
+const iconFont = require("./iconfont")
 
 
 function compileClient(loader, content, ctx) {
@@ -76,6 +77,7 @@ module.exports = function pugTemplateLoader(content) {
     const options = loaderUtil.getOptions(this) || {}
 
     let data = {}
+    let cssLoader = new nzStyle.CssLoader()
     // utils.extendDataWithDefines(this, data)
 
     let ctx = Object.assign({
@@ -102,6 +104,8 @@ module.exports = function pugTemplateLoader(content) {
         return res
     }
 
+    ctx.data.icon = iconFont.wpFontIcon(this, this.resourcePath, iconFont.icons, cssLoader)
+
     ctx.filters.stylus = (text, attrs) => {
         const styl = stylusLoader.loadStylus(this, text, this.resourcePath, {
             define: ctx.data,
@@ -113,9 +117,8 @@ module.exports = function pugTemplateLoader(content) {
         if (attrs.shadow) {
             return `<style type="text/css">\n${css}</style>`
         } else {
-            const loader = new nzStyle.CssLoader()
-            loader.load(css)
-            ctx.data.style = nzStyle.newStyle(styleRegistry.get("global"), loader)
+            cssLoader.load(css)
+            ctx.data.style = nzStyle.newStyle(styleRegistry.get("global"), cssLoader)
             // ctx.data.style = styleRegistry.get(options.group || "all", options.scope).loadCss(css)
             return ""
         }

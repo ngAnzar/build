@@ -4,7 +4,9 @@ const fs = require("fs")
 
 const webpack = require("webpack")
 const loaderUtils = require("loader-utils")
-const sync = require("synchronized-promise")
+// const sync = require("synchronized-promise")
+const deasync = require("deasync")
+const nodeResolve = require("resolve")
 
 
 async function wpResolve(loader, contextPath, request) {
@@ -19,65 +21,103 @@ async function wpResolve(loader, contextPath, request) {
     })
 }
 
+function wpResolveSync(loader, contextPath, request) {
+    let success, error, done = 0
 
-module.exports = exports = {
-    async resolvePath(loader, contextPath, request, extensions) {
-        return new Promise(async (resolve, reject) => {
-            // Protocol-relative URI
-            if (request.startsWith("//")) {
-                resolve(request)
-                return
-            } else {
-                const uri = parseUrl(request)
-                if (uri.protocol && ["http:", "https:", "ftp:"].indexOf(uri.protocol.toLowerCase()) > -1) {
-                    resolve(uri.href)
-                } else {
-                    try {
-                        if (fs.statSync(contextPath).isFile()) {
-                            contextPath = path.dirname(contextPath)
-                        }
-                    } catch (e) { }
+    loader.resolve(contextPath, request, (err, res) => {
+        if (err) {
+            error = err
+            done = 2
+        } else {
+            success = res
+            done = 1
+        }
+    })
 
-                    if (request.startsWith("~")) {
-                        request = request.substr(1)
-                    }
+    let to = setTimeout(() => {
+        error = "Timeout reached while resolving: " + request
+        done = 2
+    }, 2 * 1000)
 
-                    // request = loaderUtils.urlToRequest(request, contextPath)
-                    // console.log(request)
+    deasync.loopWhile(() => done === 0)
+    clearTimeout(to)
 
-                    let resolved
-                    for (const ext of extensions) {
-                        let reqWithExt = request.endsWith(ext) ? request : request + ext
+    if (done === 2) {
+        if (error) {
+            throw new Error(error)
+        } else {
+            throw new Error("Unexpected error")
+        }
+    } else if (done === 1) {
+        return success
+    }
 
-                        try {
-                            resolved = await wpResolve(loader, contextPath, reqWithExt)
-                        } catch (e) {
-                            continue
-                        }
+    return null
+}
 
-                        resolve(resolved)
-                        return
-                    }
 
-                    try {
-                        if (fs.statSync(request).isDirectory()) {
-                            exports.resolvePath(loader, contextPath, path.join(request, "index"), extensions)
-                                .then(resolve)
-                                .catch(() => {
-                                    reject(`Cannot load '${request}' from '${contextPath}'`)
-                                })
-                            return
-                        }
-                    } catch (e) { }
-                }
+const cache = {}
 
-                reject(`Cannot load '${request}' from '${contextPath}'`)
-            }
-        })
+
+module.exports = _exports = {
+    resolvePathSync(loader, contextPath, request, extensions) {
+        let key = path.isAbsolute(request) ? request : `${contextPath}///${request}///${extensions.join("")}`
+        if (key in cache) {
+            return cache[key]
+        } else {
+            return cache[key] = _exports._resolvePathSync(loader, contextPath, request, extensions)
+        }
     },
 
-    resolvePathSync(loader, contextPath, request, extensions) {
-        return sync(exports.resolvePath)(loader, contextPath, request, extensions)
+    _resolvePathSync(loader, contextPath, request, extensions) {
+
+        // Protocol-relative URI
+        if (request.startsWith("//")) {
+            return request
+        } else {
+            const uri = parseUrl(request)
+            if (uri.protocol && ["http:", "https:", "ftp:"].indexOf(uri.protocol.toLowerCase()) > -1) {
+                return uri.href
+            } else {
+                try {
+                    if (fs.statSync(contextPath).isFile()) {
+                        contextPath = path.dirname(contextPath)
+                    }
+                } catch (e) { }
+
+                if (request.startsWith("~")) {
+                    request = request.substr(1)
+                }
+
+                // request = loaderUtils.urlToRequest(request, contextPath)
+                // console.log(request, loaderUtils.urlToRequest(request, contextPath))
+
+                for (const ext of extensions) {
+                    let reqWithExt = request.endsWith(ext) ? request : request + ext
+
+                    try {
+                        return wpResolveSync(loader, contextPath, reqWithExt)
+                    } catch (e) {
+                        if (!reqWithExt.startsWith(".")) {
+                            try {
+                                return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
+                            } catch (ee) {
+                                continue
+                            }
+                        }
+                    }
+                }
+
+                let isDir = false
+                try {
+                    isDir = fs.statSync(request).isDirectory()
+                } catch (e) { }
+
+                if (isDir) {
+                    return _exports.resolvePathSync(loader, contextPath, path.join(request, "index"), extensions)
+                }
+            }
+        }
     },
 
     extendDataWithDefines(loader, data) {

@@ -4,6 +4,8 @@ const { RawSource } = require("webpack-sources")
 
 const { Registry } = require("@anzar/style")
 
+const { icons } = require("./iconfont")
+
 
 const REGISTRIES = {}
 
@@ -24,6 +26,7 @@ class CssSource extends RawSource {
     }
 }
 
+const rawCssList = {}
 
 module.exports = {
     get(name) {
@@ -48,6 +51,8 @@ module.exports = {
         return REGISTRIES[key]
     },
 
+    rawCssList: rawCssList,
+
     CssSource: CssSource,
 
     ExportCssPlugin: class ExportCssPlugin {
@@ -57,6 +62,7 @@ module.exports = {
          */
         constructor(options) {
             this.options = options || {}
+            this.rawCssId = Math.random().toString(36)
         }
 
         apply(compiler) {
@@ -74,12 +80,34 @@ module.exports = {
                             .substr(0, 10)
                         let filename = `${rfile.name}-${fileId}.css`
                         let filePath = path.join(this.options.outDir || "", filename)
+                        let content = rfile.content
 
-                        compilation.assets[filePath] = new CssSource(rfile.content, rfile.group)
+                        if (!rfile.group || rfile.group.id === "@global") {
+                            let rawCss = rawCssList[this.rawCssId]
+                            let rawCssContent = ""
+                            if (rawCss) {
+                                for (const k in rawCss) {
+                                    rawCssContent += rawCss[k]
+                                }
+                            }
+
+                            content = rawCssContent + icons.getGlobalCss() + content
+                        }
+
+                        compilation.assets[filePath] = new CssSource(content, rfile.group)
                     }
                 }
                 callback()
             })
+        }
+
+        extract(options) {
+            return {
+                loader: "style-extract",
+                options: {
+                    rawCssId: this.rawCssId
+                }
+            }
         }
     }
 }

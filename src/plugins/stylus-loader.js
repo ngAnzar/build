@@ -99,7 +99,7 @@ class CustomEvaluator extends stylus.Evaluator {
     constructor(root, options) {
         super(root, options)
         this.loader = options[LOADER]
-        this.includeCSS = true
+        this.includeCSS = false
     }
 
     visitImport(imported) {
@@ -123,6 +123,10 @@ class CustomEvaluator extends stylus.Evaluator {
         let pathValue = utils
             .resolvePathSync(this.loader, imported.filename, importPath.string, [".styl", ".css", ".stylus"])
 
+        if (!pathValue) {
+            throw new Error(`Can't ${nodeName} '${importPath.string}' inside '${imported.filename}'`)
+        }
+
         const literal = /\.css(?:"|$)/.test(pathValue)
 
         if (nodeName === "import" && literal) {
@@ -143,6 +147,7 @@ function stylusResolver(loader, file) {
         let compiler = new stylus.Compiler(uri)
         compiler.isURL = true
         uri = uri.stylusNodes.map((node) => compiler.visit(node)).join("")
+        console.log("STYLUS", uri)
         return utils.resolvePathSync(loader, path.dirname(file), uri, [".styl", ".css", ".stylus"])
     }
 }
@@ -197,7 +202,7 @@ module.exports = function stylusLoader(content, map, meta) {
     const styl = loadStylus(this, content, this.resourcePath, options)
     const css = styl.render()
     styl.deps().forEach(this.addDependency)
-    return `module.exports=${JSON.stringify(css)}`
+    return css
 }
 
 
