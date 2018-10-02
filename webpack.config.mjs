@@ -30,6 +30,9 @@ options.setAllDefault({
             }
         }
         // throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
+    },
+    babel: () => {
+        throw new Error("Missing babel config")
     }
 })
 
@@ -168,15 +171,14 @@ export default config({
             },
             {
                 test: /\.tsx?/,
+                exclude: /@@@FUCKING_NOTHING@@@/,
                 use: [
                     {
                         loader: "awesome-typescript-loader",
                         options: {
                             configFileName: options.tsconfig,
                             useBabel: true,
-                            babelOptions: {
-                                babelrc: true
-                            },
+                            babelOptions: options.babel,
                             babelCore: "@babel/core",
                             useCache: true,
                             ignoreDiagnostics: [2451]
