@@ -170,8 +170,13 @@ export default config({
                 ]
             },
             {
+                test: /\.svg/,
+                use: [
+                    "base64-inline-loader"
+                ]
+            },
+            {
                 test: /\.tsx?/,
-                exclude: /@@@FUCKING_NOTHING@@@/,
                 use: [
                     {
                         loader: "awesome-typescript-loader",
@@ -181,18 +186,34 @@ export default config({
                             babelOptions: options.babel,
                             babelCore: "@babel/core",
                             useCache: true,
+                            cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "awesome"),
                             ignoreDiagnostics: [2451]
                         }
-                    }
-                ]
-            },
-            {
-                test: /\.component\.ts$/,
-                use: [
+                    },
                     {
                         loader: "angular2-template-loader"
                     }
                 ]
+            },
+            // {
+            //     test: /\.component\.ts$/,
+            //     use: [
+            //         {
+            //             loader: "angular2-template-loader"
+            //         }
+            //     ]
+            // },
+            {
+                test: /\.m?js$/,
+                // exclude: /\/(@babel|core-js|webpack-hot-client|url)\//,
+                exclude: /node_modules[\\\/](?!@angular|@anzar)/,
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        ...options.babel,
+                        cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel")
+                    }
+                }
             }
         ]
     },

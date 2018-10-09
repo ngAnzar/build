@@ -1,6 +1,10 @@
 import path from "path"
 import webpack from "webpack"
-import devServer from "webpack-serve"
+// import devServer from "webpack-serve"
+import Server from "webpack-dev-server"
+import createDomain from "webpack-dev-server/lib/utils/createDomain"
+import createLogger from "webpack-dev-server/lib/utils/createLogger"
+import wdsUtils from "webpack-dev-server/bin/utils"
 import supportsColor from "supports-color"
 
 import { Config } from "../config/config"
@@ -22,22 +26,48 @@ export class WebpackRunner extends AbstractRunner {
     }
 
     async serve(args, key, config) {
-        let server = {
-            host: config.devServer.host || "localhost",
-            port: config.devServer.port,
-            // https: config.devServer.https,
-            // http2: config.devServer.http2,
-            hotClient: {
-                // allEntries: true,
-                host: config.devServer.host,
-                logLevel: "error",
-                autoConfigure: true
-                // https: config.devServer.https
-            },
-            content: config.devServer.contentBase
-        }
+        return new Promise((resolve, reject) => {
+            const dvs = config.devServer || {}
+            let options = {
+                historyApiFallback: "historyApiFallback" in dvs ? dvs.historyApiFallback : true,
+                host: dvs.host || "localhost",
+                port: dvs.port,
+                hot: true
+            }
 
-        return devServer(server, { config })
+            const compiler = webpack(config)
+            const log = createLogger(options)
+            const server = new Server(compiler, options)
+
+            const httpServer = server.listen(options.port, options.host, (err) => {
+                if (err) {
+                    throw err
+                }
+
+                const uri = createDomain(options, server.listeningApp)
+                wdsUtils.status(uri, options, log, true)
+            })
+
+            httpServer.on("close", () => { resolve() })
+            httpServer.on("error", () => { reject() })
+        })
+
+        // let server = {
+        //     host: config.devServer.host || "localhost",
+        //     port: config.devServer.port,
+        //     // https: config.devServer.https,
+        //     // http2: config.devServer.http2,
+        //     hotClient: {
+        //         // allEntries: true,
+        //         host: config.devServer.host,
+        //         logLevel: "error",
+        //         autoConfigure: true
+        //         // https: config.devServer.https
+        //     },
+        //     content: config.devServer.contentBase
+        // }
+
+        // return devServer(server, { config })
     }
 
     async compile(args, key, config) {
