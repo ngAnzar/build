@@ -56,6 +56,23 @@ function wpResolveSync(loader, contextPath, request) {
 }
 
 
+function isDir(fs, f) {
+    try {
+        return fs.statSync(f).isDir()
+    } catch (e) {
+        return false
+    }
+}
+
+function isFile(fs, f) {
+    try {
+        return fs.statSync(f).isFile()
+    } catch (e) {
+        return false
+    }
+}
+
+
 const cache = {}
 
 
@@ -65,11 +82,11 @@ module.exports = _exports = {
         if (key in cache) {
             return cache[key]
         } else {
-            return cache[key] = _exports._resolvePathSync(loader, contextPath, request, extensions)
+            return cache[key] = _exports._resolvePathSync(loader, contextPath, request, extensions, false)
         }
     },
 
-    _resolvePathSync(loader, contextPath, request, extensions) {
+    _resolvePathSync(loader, contextPath, request, extensions, skipDir) {
 
         // Protocol-relative URI
         if (request.startsWith("//")) {
@@ -80,7 +97,7 @@ module.exports = _exports = {
                 return uri.href
             } else {
                 try {
-                    if (fs.statSync(contextPath).isFile()) {
+                    if (isFile(loader.fs, contextPath)) {
                         contextPath = path.dirname(contextPath)
                     }
                 } catch (e) { }
@@ -89,33 +106,70 @@ module.exports = _exports = {
                     request = request.substr(1)
                 }
 
-                // request = loaderUtils.urlToRequest(request, contextPath)
-                // console.log(request, loaderUtils.urlToRequest(request, contextPath))
+                if (request.startsWith(".")) {
+                    request = path.normalize(path.join(contextPath, request))
+                }
 
-                for (const ext of extensions) {
-                    let reqWithExt = request.endsWith(ext) ? request : request + ext
+                if (!skipDir && isDir(loader.fs, request)) {
+                    return _exports._resolvePathSync(loader, contextPath, path.join(request, "index"), extensions, true)
+                }
 
-                    try {
-                        return wpResolveSync(loader, contextPath, reqWithExt)
-                    } catch (e) {
-                        if (!reqWithExt.startsWith(".")) {
-                            try {
-                                return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
-                            } catch (ee) {
-                                continue
-                            }
-                        }
+                let alias = {}
+                try {
+                    alias = loader._compilation.compiler.options.resolve.alias
+                } catch (e) { }
+
+                for (let k in alias) {
+                    if (request.startsWith(k)) {
+                        request = alias[k] + request.substr(k.length)
                     }
                 }
 
-                let isDir = false
-                try {
-                    isDir = fs.statSync(request).isDirectory()
-                } catch (e) { }
+                let resolved = nodeResolve.sync(request, {
+                    basedir: contextPath,
+                    extensions: extensions,
+                    preserveSymlinks: false
+                })
 
-                if (isDir) {
-                    return _exports.resolvePathSync(loader, contextPath, path.join(request, "index"), extensions)
+                if (!skipDir && isDir(loader.fs, resolved)) {
+                    return _exports._resolvePathSync(loader, contextPath, path.join(request, "index"), extensions, true)
                 }
+
+                return resolved
+                // for (const ext of extensions) {
+                // const full = reqWithExt.startsWith(".") ? path.join()
+
+                // if (!reqWithExt.startsWith(".")) {
+                //     try {
+                //         return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
+                //     } catch (ee) {
+                //         continue
+                //     }
+                // }
+
+                // let reqWithExt = request.endsWith(ext) ? request : request + ext
+
+                // try {
+                //     return wpResolveSync(loader, contextPath, reqWithExt)
+                // } catch (e) {
+                //     if (!reqWithExt.startsWith(".")) {
+                //         try {
+                //             return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
+                //         } catch (ee) {
+                //             continue
+                //         }
+                //     }
+                // }
+                // }
+
+                // let isDir = false
+                // try {
+                //     isDir = fs.statSync(resolved).isDirectory()
+                // } catch (e) { }
+
+                // if (isDir) {
+                //     return _exports.resolvePathSync(loader, contextPath, path.join(resolved, "index"), extensions)
+                // }
             }
         }
     },
