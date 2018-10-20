@@ -96,12 +96,15 @@ module.exports = function pugTemplateLoader(content) {
         ctx.filters = {}
     }
 
-    ctx.data.style = (...classNames) => {
-        let res = []
-        for (let cls of classNames) {
-            res = res.concat(cls.split(/\s+(?!,)|(?:\s*,\s*)/))
-        }
-        return res
+    ctx.data.style = (...args) => {
+        const styl = stylusLoader.loadStylus(this, "", this.resourcePath, {
+            define: ctx.data,
+            ...options.stylus
+        })
+        cssLoader.load(styl.render())
+        styl.deps().forEach(this.addDependency)
+        let x = nzStyle.newStyle(styleRegistry.get("global"), cssLoader)
+        return x(...args)
     }
 
     ctx.data.icon = iconFont.wpFontIcon(this, this.resourcePath, iconFont.icons, cssLoader)
