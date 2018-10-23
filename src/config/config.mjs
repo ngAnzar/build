@@ -107,7 +107,7 @@ export class Config extends Array {
             return
         }
 
-        const dirname = path.dirname(this.path.replace(/^[\/\\]+|^file:[\/\\]+|[\/\\]+$/, ""))
+        const dirname = path.dirname(this.path.replace(/^[\/\\]+|^file:[\/\\]{2}|[\/\\]+$/, ""))
         const recursion = []
         const subst = (obj) => {
             if (!obj) {
