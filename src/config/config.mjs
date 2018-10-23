@@ -75,9 +75,16 @@ export class Config extends Array {
         this._postProcess()
     }
 
-    setPath(path) {
+    setPath(value) {
+        if (value) {
+            value = value.replace(/^[\/\\]+|^file:[\/\\]+|[\/\\]+$/, "")
+            if (!path.isAbsolute(value)) {
+                value = `/${value}`
+            }
+            value = path.normalize(value)
+        }
         Object.defineProperty(this, "path", {
-            value: path,
+            value: value,
             configurable: true
         })
         this._updateRelatives()
@@ -107,7 +114,7 @@ export class Config extends Array {
             return
         }
 
-        const dirname = path.dirname(this.path.replace(/^[\/\\]+|^file:[\/\\]{2}|[\/\\]+$/, ""))
+        const dirname = path.dirname(this.path)
         const recursion = []
         const subst = (obj) => {
             if (!obj) {
