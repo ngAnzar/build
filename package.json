@@ -20,7 +20,7 @@
   "main": "src/index.mjs",
   "homepage": "https://github.com/ngAnzar/build#readme",
   "dependencies": {
-    "@anzar/style": "github:ngAnzar/style",
+    "@anzar/style": "ngAnzar/style",
     "@babel/core": "^7.0.0-beta.55",
     "@babel/preset-env": "^7.0.0-beta.55",
     "angular2-template-loader": "^0.6.2",
