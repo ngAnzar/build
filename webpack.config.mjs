@@ -104,6 +104,10 @@ export default config({
         ]
     },
 
+    node: {
+        fs: "empty"
+    },
+
     watchOptions: {
         ignored: [/node_modules[\\\/](?!@anzar)/ig]
     },
