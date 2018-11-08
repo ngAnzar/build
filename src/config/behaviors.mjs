@@ -119,7 +119,7 @@ export class Constants extends SpecialProperty {
             result.push((cfg, k, v, i) => {
                 if (!multiKey || multiKey === k) {
                     cfg[DEFINES][i].set(name, () => {
-                        return value[name](v, k, i, cfg)
+                        return value[name].call(cfg[DEFINES][i], v, k, i, cfg)
                     })
                 }
             })
