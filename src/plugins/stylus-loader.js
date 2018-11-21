@@ -123,6 +123,8 @@ class CustomEvaluator extends stylus.Evaluator {
         let pathValue = utils
             .resolvePathSync(this.loader, imported.filename, importPath.string, [".styl", ".css", ".stylus"])
 
+        // console.log(importPath.string, "->", pathValue)
+
         if (!pathValue) {
             throw new Error(`Can't ${nodeName} '${importPath.string}' inside '${imported.filename}'`)
         }

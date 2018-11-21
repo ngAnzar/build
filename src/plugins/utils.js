@@ -122,6 +122,7 @@ module.exports = _exports = {
                 for (let k in alias) {
                     if (request.startsWith(k)) {
                         request = alias[k] + request.substr(k.length)
+                        break
                     }
                 }
 
