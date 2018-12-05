@@ -15,5 +15,9 @@
             "es6",
             "dom"
         ]
+    },
+    "angularCompilerOptions": {
+        "fullTemplateTypeCheck": true,
+        "strictInjectionParameters": true
     }
 }

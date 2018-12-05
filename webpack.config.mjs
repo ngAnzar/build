@@ -1,16 +1,15 @@
 import path from "path"
 import fs from "fs"
 
-import resolve from "resolve"
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
-import ExtractTextPlugin from "extract-text-webpack-plugin"
+import ngtools from "@ngtools/webpack"
+const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 
 import nzStyle from "./src/plugins/style"
 import { options, defines, config } from "./src"
-import { filterByEntryPoint } from "./src/util"
-// import { root } from "./src/helper"
+
 
 options.setAllDefault({
     __ENV__: () => process.env.NODE_ENV || "development",
@@ -33,6 +32,9 @@ options.setAllDefault({
     },
     babel: () => {
         throw new Error("Missing babel config")
+    },
+    aotEntryModule: () => {
+        throw new Error("Missing aotEntryModule config")
     }
 })
 
@@ -45,7 +47,6 @@ defines.setAllDefault({
     __MODE__: () => options.__MODE__,
     __PLATFORM__: () => options.__PLATFORM__
 })
-
 
 // stylus.options.setAllDefault({
 //     compress: true
@@ -179,34 +180,38 @@ export default config({
                     "base64-inline-loader"
                 ]
             },
-            {
-                test: /\.tsx?/,
-                use: [
-                    {
-                        loader: "awesome-typescript-loader",
-                        options: {
-                            configFileName: options.tsconfig,
-                            useBabel: true,
-                            babelOptions: options.babel,
-                            babelCore: "@babel/core",
-                            useCache: true,
-                            cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "awesome"),
-                            ignoreDiagnostics: [2451]
+
+            //#region Typescript Loader
+            options.__AOT__
+                ? {
+                    test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+                    use: [
+                        { loader: "@ngtools/webpack" },
+                        { loader: "angular2-template-loader" }
+                    ]
+                }
+                : {
+                    test: /\.tsx?/,
+                    use: [
+                        {
+                            loader: "awesome-typescript-loader",
+                            options: {
+                                configFileName: options.tsconfig,
+                                useBabel: true,
+                                babelOptions: options.babel,
+                                babelCore: "@babel/core",
+                                useCache: true,
+                                cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "awesome"),
+                                ignoreDiagnostics: [2451]
+                            }
+                        },
+                        {
+                            loader: "angular2-template-loader"
                         }
-                    },
-                    {
-                        loader: "angular2-template-loader"
-                    }
-                ]
-            },
-            // {
-            //     test: /\.component\.ts$/,
-            //     use: [
-            //         {
-            //             loader: "angular2-template-loader"
-            //         }
-            //     ]
-            // },
+                    ]
+                },
+            //#endregion
+
             {
                 test: /\.m?js$/,
                 // exclude: /\/(@babel|core-js|webpack-hot-client|url)\//,
@@ -232,5 +237,15 @@ export default config({
         }),
         defines.plugin,
         cssPlugin
-    ]
+    ].concat(
+        options.__AOT__
+            ? [
+                new AngularCompilerPlugin({
+                    tsConfigPath: options.tsconfig,
+                    entryModule: options.aotEntryModule,
+                    sourceMap: isDev
+                })
+            ]
+            : []
+    )
 })

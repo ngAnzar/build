@@ -20,9 +20,13 @@
   "main": "src/index.mjs",
   "homepage": "https://github.com/ngAnzar/build#readme",
   "dependencies": {
+    "@angular/compiler": "^7.1.1",
+    "@angular/compiler-cli": "^7.1.1",
+    "@angular/core": "^7.1.1",
     "@anzar/style": "ngAnzar/style",
     "@babel/core": "^7.0.0-beta.55",
     "@babel/preset-env": "^7.0.0-beta.55",
+    "@ngtools/webpack": "^7.1.1",
     "angular2-template-loader": "^0.6.2",
     "argparse": "^1.0.10",
     "awesome-typescript-loader": "^5.2.0",
