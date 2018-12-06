@@ -4,6 +4,7 @@ import fs from "fs"
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
+import BundleAnalyzerPlugin from "webpack-bundle-analyzer"
 import ngtools from "@ngtools/webpack"
 const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 
@@ -246,6 +247,10 @@ export default config({
                     sourceMap: isDev
                 })
             ]
+            : []
+    ).concat(
+        isDev
+            ? [new BundleAnalyzerPlugin.BundleAnalyzerPlugin({ analyzerMode: "server" })]
             : []
     )
 })
