@@ -56,6 +56,15 @@ defines.setAllDefault({
 const isDev = options.__MODE__ === "development"
 // console.log(resolve.sync("webpack-hot-client/client"))
 const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
+const mainFields = ["esm6", "esm2015", "es2015", "esm5"]
+
+if (isDev) {
+    for (let i = 0; i <= mainFields.length; i += 2) {
+        if (mainFields[i]) {
+            mainFields.splice(i, 0, `f${mainFields[i]}`)
+        }
+    }
+}
 
 
 export default config({
@@ -76,10 +85,7 @@ export default config({
         symlinks: true,
         extensions: [".ts", ".tsx", ".js", ".json", ".css", ".styl", ".stylus"],
         mainFields: [
-            (isDev ? "f" : "") + "esm6",
-            (isDev ? "f" : "") + "esm2015",
-            (isDev ? "f" : "") + "es2015",
-            (isDev ? "f" : "") + "esm5",
+            ...mainFields,
             options.__PLATFORM__,
             "module",
             "main"
@@ -116,6 +122,7 @@ export default config({
 
     optimization: {
         minimize: !isDev,
+        concatenateModules: !isDev,
         splitChunks: {
             // maxSize: 2 * 1024 * 1024,
             cacheGroups: {
@@ -215,8 +222,7 @@ export default config({
 
             {
                 test: /\.m?js$/,
-                // exclude: /\/(@babel|core-js|webpack-hot-client|url)\//,
-                exclude: /node_modules[\\\/](?!@angular|@anzar)/,
+                exclude: /node_modules[\\\/](?!@angular|@anzar|rxjs)/,
                 use: {
                     loader: "babel-loader",
                     options: {
