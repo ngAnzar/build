@@ -18,6 +18,7 @@ export class WebpackRunner extends AbstractRunner {
             if (args.subcommand === "serve" && config.devServer) {
                 promises.push(this.serve(args, key, config))
             } else {
+                delete config.devServer
                 promises.push(this.compile(args, key, config))
             }
         })
@@ -75,7 +76,7 @@ export class WebpackRunner extends AbstractRunner {
             let compiler = webpack(config)
             let silent = false
             let outputOptions = {
-                color: supportsColor.stdout,
+                color: true,
                 cached: false,
                 cachedAssets: false,
                 // modules: true,
