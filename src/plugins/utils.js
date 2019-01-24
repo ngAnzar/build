@@ -96,11 +96,9 @@ module.exports = _exports = {
             if (uri.protocol && ["http:", "https:", "ftp:"].indexOf(uri.protocol.toLowerCase()) > -1) {
                 return uri.href
             } else {
-                try {
-                    if (isFile(loader.fs, contextPath)) {
-                        contextPath = path.dirname(contextPath)
-                    }
-                } catch (e) { }
+                if (isFile(loader.fs, contextPath)) {
+                    contextPath = path.dirname(contextPath)
+                }
 
                 if (request.startsWith("~")) {
                     request = request.substr(1)
@@ -119,6 +117,11 @@ module.exports = _exports = {
                     alias = loader._compilation.compiler.options.resolve.alias
                 } catch (e) { }
 
+                let modules = []
+                try {
+                    modules = loader._compilation.compiler.options.resolve.modules
+                } catch (e) { }
+
                 for (let k in alias) {
                     if (request.startsWith(k)) {
                         request = alias[k] + request.substr(k.length)
@@ -126,10 +129,14 @@ module.exports = _exports = {
                     }
                 }
 
+                // let paths = _exports.getNodeModulesUp(contextPath).concat(modules)
+                // console.log(contextPath, request, paths)
+
                 let resolved = nodeResolve.sync(request, {
                     basedir: contextPath,
                     extensions: extensions,
-                    preserveSymlinks: false
+                    preserveSymlinks: false,
+                    // paths: paths
                 })
 
                 if (!skipDir && isDir(loader.fs, resolved)) {
@@ -195,5 +202,22 @@ module.exports = _exports = {
                 }
             }
         }
+    },
+
+    getNodeModulesUp: function (start) {
+        let dir = start
+        let root = path.dirname(dir)
+        let result = []
+
+        while (root !== dir) {
+            root = dir
+            let nodeModules = path.join(dir, "node_modules")
+            if (fs.existsSync(nodeModules)) {
+                result.push(nodeModules)
+            }
+            dir = path.dirname(dir)
+        }
+
+        return result
     }
 }

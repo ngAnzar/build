@@ -163,11 +163,15 @@ const icons = new IconRegistry()
 function wpFontIcon(loader, contextPath, registry, cssLoader) {
     return (icon, size) => {
         const package = icon.split(/[\\\/]+/)[0]
-        const path = util.resolvePathSync(loader, contextPath, icon, [".svg"])
-        if (!path) {
+        let iconPath
+
+        try {
+            iconPath = util.resolvePathSync(loader, contextPath, icon, [".svg"])
+        } catch (e) {
             throw new Error(`The requested icon is not found: ${icon}`)
         }
-        const data = registry.add(package, path, size)
+
+        const data = registry.add(package, iconPath, size)
         cssLoader.load(data.css)
         return data.clsName
     }

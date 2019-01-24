@@ -10,6 +10,7 @@ const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 
 import nzStyle from "./src/plugins/style"
 import { options, defines, config } from "./src"
+import putils from "./src/plugins/utils"
 
 
 options.setAllDefault({
@@ -36,6 +37,9 @@ options.setAllDefault({
     },
     aotEntryModule: () => {
         throw new Error("Missing aotEntryModule config")
+    },
+    node_modules: () => {
+        return putils.getNodeModulesUp(options.project_path)
     }
 })
 
@@ -91,9 +95,8 @@ export default config({
             "main"
         ],
         modules: [
-            path.join(options.project_path, "src"),
-            path.join(options.project_path, "node_modules")
-        ],
+            path.join(options.project_path, "src")
+        ].concat(options.node_modules),
         plugins: [
             new TsConfigPathsPlugin({
                 configFile: options.tsconfig
@@ -107,9 +110,8 @@ export default config({
     resolveLoader: {
         modules: [
             "relative://src/plugins",
-            "relative://node_modules",
-            path.join(options.project_path, "node_modules")
-        ]
+            "relative://node_modules"
+        ].concat(options.node_modules)
     },
 
     node: {
