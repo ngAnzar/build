@@ -31,7 +31,9 @@
     "argparse": "^1.0.10",
     "awesome-typescript-loader": "^5.2.0",
     "base64-inline-loader": "^1.1.1",
+    "ci-info": "^2.0.0",
     "clean-css": "^4.2.1",
+    "chalk": "^2.4.2",
     "deasync": "^0.1.13",
     "duplicate-package-checker-webpack-plugin": "^3.0.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
@@ -52,12 +54,14 @@
     "tslint": "^5.10.0",
     "ttf2woff": "^2.0.1",
     "webpack": "^4.5.0",
+    "webpackbar": "^3.1.5",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-dev-server": "^3.1.9",
     "webpack-hot-client": "^4.1.1",
     "webpack-merge": "^4.1.2",
     "webpack-serve": "^2.0.2",
     "webpack-sources": "^1.1.0",
+    "webpack-log": "^2.0.0",
     "typescript": "^3.2.4"
   }
 }

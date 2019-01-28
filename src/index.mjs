@@ -1,6 +1,7 @@
 export { config } from "./config"
 export { options } from "./options"
 export { defines } from "./defines"
+export { fancyOutput } from "./util"
 import * as cli from "./cli"
 export { cli }
 

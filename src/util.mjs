@@ -1,3 +1,8 @@
+import log from "webpack-log"
+import chalk from "chalk"
+import WebpackBar from "webpackbar"
+import WebpackBarUtil from "webpackbar/dist/utils/cli"
+import ciInfo from "ci-info"
 
 
 export function filterByEntryPoint(entryPointName) {
@@ -23,4 +28,36 @@ export function filterByEntryPoint(entryPointName) {
 
         return false
     }
+}
+
+
+export function fancyOutput(name, color) {
+    const logger = log({
+        name: "build"
+    })
+    const isCI = ciInfo.isCI
+    // const isCI = true
+    const tcolor = WebpackBarUtil.colorize(color)
+    let lastProgress = null
+    let lastFile = null
+
+    return new WebpackBar({
+        name: name,
+        color: color,
+        fancy: !isCI,
+        reporters: ["fancy", "stats"],
+        reporter: isCI ? {
+            progress({ state }) {
+                let currentFile = state.request ? state.request.file : "..."
+                if (currentFile && (lastProgress !== state.progress || lastFile !== currentFile)) {
+                    lastProgress = state.progress
+                    lastFile = currentFile
+                    let percent = `${state.progress < 10 ? "  " : state.progress < 100 ? " " : ""}${state.progress}%`
+                    let title = tcolor(`[${name} ${percent}]`)
+                    let nfo = chalk.gray(currentFile)
+                    logger.info(`${title} ${nfo}`)
+                }
+            }
+        } : {}
+    })
 }

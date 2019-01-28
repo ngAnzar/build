@@ -91,7 +91,9 @@ class IconRegistry {
                 fontName: "iconfont",
                 fontHeight: 1024,
                 fontWeight: 400,
-                fontStyle: "normal"
+                fontStyle: "normal",
+                normalize: true,
+                log: function () { } // disable logging
             })
 
             font

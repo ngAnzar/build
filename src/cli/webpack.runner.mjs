@@ -33,11 +33,14 @@ export class WebpackRunner extends AbstractRunner {
                 historyApiFallback: "historyApiFallback" in dvs ? dvs.historyApiFallback : true,
                 host: dvs.host || "localhost",
                 port: dvs.port,
-                hot: true
+                hot: true,
+                progress: false,
+                // noInfo: true
+                quiet: true
             }
 
             const compiler = webpack(config)
-            const log = createLogger(options)
+            const log = createLogger({ ...options, quiet: false })
             const server = new Server(compiler, options)
 
             const httpServer = server.listen(options.port, options.host, (err) => {
@@ -100,9 +103,6 @@ export class WebpackRunner extends AbstractRunner {
             //     })
             // }
 
-            let progress = new webpack.ProgressPlugin()
-            progress.apply(compiler)
-
             let compilerCallback = (err, stats) => {
                 if (err) {
                     if (err.details && !silent) {
@@ -113,7 +113,7 @@ export class WebpackRunner extends AbstractRunner {
                         reject()
                     }
                 } else if (!silent) {
-                    process.stdout.write(stats.toString(outputOptions))
+                    // process.stdout.write(stats.toString(outputOptions))
 
                     if (args.watch) {
                         console.log("\nWebpack watching changes ...")
