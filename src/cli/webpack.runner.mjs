@@ -12,7 +12,11 @@ import { AbstractRunner } from "./abstract.runner"
 
 
 export class WebpackRunner extends AbstractRunner {
-    async run(args) {
+    name() {
+        return "webpack"
+    }
+
+    async run(app, args) {
         let promises = []
         this.app.config.each((key, config) => {
             if (args.subcommand === "serve" && config.devServer) {
@@ -111,6 +115,7 @@ export class WebpackRunner extends AbstractRunner {
 
                     if (!args.watch) {
                         reject()
+                        return
                     }
                 } else if (!silent) {
                     // process.stdout.write(stats.toString(outputOptions))
@@ -119,6 +124,7 @@ export class WebpackRunner extends AbstractRunner {
                         console.log("\nWebpack watching changes ...")
                     }
                 }
+                resolve()
             }
 
             if (args.watch) {

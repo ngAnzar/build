@@ -12,7 +12,14 @@ export class AbstractRunner {
         this.app = app
     }
 
-    async run(cancel) {
+    name() {
         throw new Error("not implemented")
     }
+
+    async run(app, args) {
+        throw new Error("not implemented")
+    }
+
+    beforeRun(app, args) { }
+    afterRun(app, args) { }
 }

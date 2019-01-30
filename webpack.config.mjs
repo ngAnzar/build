@@ -71,6 +71,9 @@ if (isDev) {
 }
 
 
+// console.log(options)
+
+
 export default config({
     mode: "[__MODE__]",
     devtool: isDev ? "cheap-module-eval-source-map" : false,
@@ -257,7 +260,7 @@ export default config({
             ]
             : []
     ).concat(
-        isDev
+        options.analyze
             ? [new BundleAnalyzerPlugin.BundleAnalyzerPlugin({ analyzerMode: "server" })]
             : []
     )

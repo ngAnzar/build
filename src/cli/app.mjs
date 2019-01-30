@@ -15,6 +15,8 @@ export class Application {
         })
         this.runners = runners
         this.config = null
+        this.running = {}
+        this.done = false
 
         this._initArgs()
     }
@@ -33,6 +35,7 @@ export class Application {
         options.set("config_path", configPath)
         options.set("project_path", args.project)
         options.set("package_json", path.join(args.project, "package.json"))
+        options.set("analyze", args.analyze)
 
         this.config = await importConfig(configPath)
         let promises = []
@@ -46,11 +49,39 @@ export class Application {
             args.subcommand = command
 
             for (const runner of this.runners) {
-                promises.push(runner.run(args))
+                runner.beforeRun(this, args)
             }
+
+            for (const runner of this.runners) {
+                const name = runner.name()
+                this.running[name] = runner.run(this, args).then((param => {
+                    delete this.running[name]
+                    return param
+                }))
+                promises.push(this.running[name])
+            }
+
+            for (const runner of this.runners) {
+                runner.afterRun(this, args)
+            }
+
+            // TODO: REMOVE -- never ending...
+            promises.push(new Promise(() => {
+
+            }))
         }
 
         return Promise.all(promises)
+            .then(x => {
+                this.done = true
+            })
+            .catch(err => {
+                if (typeof err === "number") {
+                    process.exitCode = err
+                } else {
+                    console.error(err)
+                }
+            })
     }
 
     _initArgs() {
@@ -76,6 +107,15 @@ export class Application {
             {
                 defaultValue: "package.json",
                 help: "package.json file location (default: [project]/package.json)"
+            }
+        )
+
+        this.args.addArgument(
+            ["--analyze"],
+            {
+                action: "storeTrue",
+                defaultValue: false,
+                help: "enable or disable webpack-bundle-analyzer"
             }
         )
 
@@ -109,8 +149,31 @@ export class Application {
         // subcommands.addParser("serve")
         // subcommands.addParser("build")
     }
+
+    waitFor(runnerName) {
+        const start = new Date()
+        const halfMin = 30 * 1000
+        return new Promise((resolve, reject) => {
+            let started = false
+            const tick = () => {
+                if (!started && new Date() - start >= halfMin) {
+                    throw new Error(`deadlock found in waitFor ${runnerName}`)
+                }
+
+                if (this.running[runnerName]) {
+                    started = true
+                    setTimeout(tick, 100)
+                } else if (this.done) {
+                    reject()
+                } else if (started) {
+                    resolve()
+                } else if (!this.done) {
+                    setTimeout(tick, 100)
+                }
+            }
+
+            // process.nextTick(tick)
+            setTimeout(tick, 100)
+        })
+    }
 }
-
-
-
-
