@@ -1,5 +1,6 @@
 import path from "path"
 import url from "url"
+import fs from "fs"
 
 import resolve from "resolve"
 
@@ -22,14 +23,37 @@ function asUrl(path) {
 let resolvers = [
     async function (name, relativeFrom) {
         const relFrom = relativeFrom ? path.dirname(relativeFrom) : options.project_path
+
+        return new Promise((presolve, reject) => {
+            let relImport = path.join(relFrom, name)
+
+            if (!relImport.endsWith(".js") && !relImport.endsWith(".mjs")) {
+                relImport += ".mjs"
+            }
+
+            fs.stat(relImport, (err, stat) => {
+                if (!err && stat) {
+                    if (stat.isFile()) {
+                        presolve(asUrl(relImport))
+                        return
+                    }
+                } else {
+                    reject(null)
+                }
+            })
+        })
+    },
+
+    async function (name, relativeFrom) {
+        const relFrom = relativeFrom ? path.dirname(relativeFrom) : options.project_path
         const packageFilter = (pkg) => {
             pkg.main = WEBPACK_CONFIG
             return pkg
         }
         return new Promise((presolve, reject) => {
-            resolve(name, { basedir: relFrom, packageFilter }, (err, succ) => {
-                if (err) {
-                    reject(err)
+            resolve(name, { basedir: relFrom, packageFilter }, (err2, succ) => {
+                if (err2) {
+                    reject(err2)
                 } else {
                     presolve(asUrl(succ))
                 }
@@ -84,7 +108,9 @@ export async function importConfig(path, relativeFrom) {
             try {
                 var configPath = await resolve(path, relativeFrom)
             } catch (e) {
-                console.log(e.toString())
+                if (e) {
+                    console.log(e.toString())
+                }
                 continue
             }
 
