@@ -35,8 +35,6 @@ export function fancyOutput(name, color) {
     const logger = log({
         name: "build"
     })
-    const isCI = ciInfo.isCI
-    // const isCI = true
     const tcolor = WebpackBarUtil.colorize(color)
     let lastProgress = null
     let lastFile = null
@@ -44,9 +42,9 @@ export function fancyOutput(name, color) {
     return new WebpackBar({
         name: name,
         color: color,
-        fancy: !isCI,
+        fancy: fancyOutputEnabled(),
         reporters: ["fancy", "stats"],
-        reporter: isCI ? {
+        reporter: !fancyOutputEnabled() ? {
             progress({ state }) {
                 let currentFile = state.request ? state.request.file : "..."
                 if (currentFile && (lastProgress !== state.progress || lastFile !== currentFile)) {
@@ -60,4 +58,8 @@ export function fancyOutput(name, color) {
             }
         } : {}
     })
+}
+
+export function fancyOutputEnabled() {
+    return !ciInfo.isCI
 }
