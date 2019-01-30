@@ -150,6 +150,9 @@ function factory(isMulti) {
         let callerStack = stack[1]
         let callerUri = callerStack.getFileName()
         let configPath = url.parse(callerUri).path.replace(/^[\\\/]+|[\\\/]+$/, "")
+        if (process.platform !== "win32") {
+            configPath = `/${configPath}`
+        }
         let result = new Config(null, isMulti, configPath)
         for (let i = 0, l = arguments.length; i < l; i++) {
             result.update(await getConfig(arguments[i], configPath))
