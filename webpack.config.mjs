@@ -40,7 +40,11 @@ options.setAllDefault({
     },
     node_modules: () => {
         return putils.getNodeModulesUp(options.project_path)
-    }
+    },
+    out_path: () => {
+        return path.join(options.project_path, "dist", options.__MODE__)
+    },
+    relative_assets: null
 })
 
 
@@ -80,7 +84,7 @@ export default config({
     // devtool: false,
 
     output: {
-        path: path.join(options.project_path, "dist", "[__MODE__]"),
+        path: options.out_path,
         publicPath: "/",
         filename: "js/[name].bundle.js",
         chunkFilename: "js/[name].chunk.js",
