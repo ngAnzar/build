@@ -1,15 +1,17 @@
+import { EventEmitter } from "events"
 
 
-
-export class AbstractRunner {
+export class AbstractRunner extends EventEmitter {
     constructor() {
+        super()
         this.cancelToken = new Promise((resolve) => {
-            this.cancel = () => resolve()
+            this.cancel = resolve
         })
     }
 
     init(app) {
         this.app = app
+        this.emit("init")
     }
 
     name() {

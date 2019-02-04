@@ -13,7 +13,12 @@ export class Application {
             description: "description",
             epilog: "epilog"
         })
-        this.runners = runners
+        // this.runners = runners
+        this.runners = {}
+        for (const runner of runners) {
+            this.runners[runner.name()] = runner
+        }
+
         this.config = null
         this.running = {}
         this.done = false
@@ -47,12 +52,13 @@ export class Application {
                 this.args.error(`Missing command parameter: ${this.args.prog} {serve,build}`)
             }
             args.subcommand = command
+            const runners = Object.keys(this.runners).map(k => this.runners[k])
 
-            for (const runner of this.runners) {
+            for (const runner of runners) {
                 runner.beforeRun(this, args)
             }
 
-            for (const runner of this.runners) {
+            for (const runner of runners) {
                 const name = runner.name()
                 this.running[name] = runner.run(this, args).then((param => {
                     delete this.running[name]
@@ -61,14 +67,9 @@ export class Application {
                 promises.push(this.running[name])
             }
 
-            for (const runner of this.runners) {
+            for (const runner of runners) {
                 runner.afterRun(this, args)
             }
-
-            // TODO: REMOVE -- never ending...
-            promises.push(new Promise(() => {
-
-            }))
         }
 
         return Promise.all(promises)
@@ -137,8 +138,8 @@ export class Application {
             }
         )
 
-        for (const runner of this.runners) {
-            runner.init(this)
+        for (const k in this.runners) {
+            this.runners[k].init(this)
         }
 
         // const subcommands = this.args.addSubparsers({
@@ -150,10 +151,22 @@ export class Application {
         // subcommands.addParser("build")
     }
 
-    waitFor(runnerName) {
+    waitFor(runnerName, eventName) {
         const start = new Date()
         const halfMin = 30 * 1000
+
         return new Promise((resolve, reject) => {
+            let eventOccured = true
+            if (eventName) {
+                eventOccured = false
+                this.runners[runnerName].on(eventName, () => {
+                    if (!eventOccured) {
+                        eventOccured = true
+                        resolve()
+                    }
+                })
+            }
+
             let started = false
             const tick = () => {
                 if (!started && new Date() - start >= halfMin) {
@@ -166,7 +179,9 @@ export class Application {
                 } else if (this.done) {
                     reject()
                 } else if (started) {
-                    resolve()
+                    if (!eventOccured) {
+                        resolve()
+                    }
                 } else if (!this.done) {
                     setTimeout(tick, 100)
                 }

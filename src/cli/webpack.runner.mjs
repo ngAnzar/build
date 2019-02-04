@@ -23,6 +23,7 @@ export class WebpackRunner extends AbstractRunner {
                 promises.push(this.serve(args, key, config))
             } else {
                 delete config.devServer
+                args.watch = args.subcommand === "serve"
                 promises.push(this.compile(args, key, config))
             }
         })
@@ -122,9 +123,11 @@ export class WebpackRunner extends AbstractRunner {
 
                     if (args.watch) {
                         console.log("\nWebpack watching changes ...")
+                    } else {
+                        resolve()
                     }
+                    this.emit("compiled")
                 }
-                resolve()
             }
 
             if (args.watch) {
