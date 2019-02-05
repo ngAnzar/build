@@ -1,5 +1,6 @@
 const path = require("path")
 const fs = require("fs")
+const deasync = require("deasync")
 
 const loaderUtil = require("loader-utils")
 const stylus = require("stylus")
@@ -146,12 +147,41 @@ class CustomEvaluator extends stylus.Evaluator {
 
 function stylusResolver(loader, file) {
     return (uri, options) => {
-        let compiler = new stylus.Compiler(uri)
-        compiler.isURL = true
-        uri = uri.stylusNodes.map((node) => compiler.visit(node)).join("")
-        console.log("STYLUS", uri)
-        return utils.resolvePathSync(loader, path.dirname(file), uri, [".styl", ".css", ".stylus"])
+        let resolved = utils.resolvePathSync(loader, path.dirname(uri.filename), uri.string, [".styl", ".css", ".stylus"])
+        return resolved
+        // resolve = deasync(loader.resolve.bind(loader))
+        // console.log(resolved, "=>", resolve(loader.context, resolved))
+        // return resolve(loader.context, resolved)
     }
+}
+
+
+function stylusNodeToString(node, isUrl) {
+    const compiler = new stylus.Compiler(node)
+    compiler.isURL = isUrl
+    return node.nodes.map(compiler.visit.bind(compiler)).join("")
+}
+
+const assetsEmitted = {}
+function assetUrlResolver(loader, file, urlResolver) {
+    const fn = (typeNode, uriNode, options) => {
+        const type = stylusNodeToString(typeNode, true)
+        const uri = stylusNodeToString(uriNode, true)
+
+        let resolved = utils.resolvePathSync(loader, path.dirname(uriNode.filename), uri, [])
+        let outPath = type + "/" + path.basename(resolved)
+
+        if (!assetsEmitted[resolved]) {
+            assetsEmitted[resolved] = outPath
+            loader.emitFile(outPath, fs.readFileSync(resolved))
+        }
+
+        // return stylusNodes.Call("url", "./" + assetsEmitted[resolved])
+        // console.log(stylusNodes.Literal(`url("./${assetsEmitted[resolved]}")`))
+        return new stylusNodes.Literal(`url("../${assetsEmitted[resolved]}")`)
+    }
+    fn.raw = true
+    return fn
 }
 
 
@@ -164,7 +194,9 @@ function loadStylus(loader, content, path, options) {
         filename: path
     })
 
-    styl.define("url", stylusResolver(loader, path))
+    const urlResolver = stylusResolver(loader, path)
+    styl.define("url", urlResolver)
+    styl.define("asset-url", assetUrlResolver(loader, path, urlResolver))
 
     if (!options) {
         options = {}
