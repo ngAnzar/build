@@ -11,6 +11,29 @@ const utils = require("./utils")
 
 
 const LOADER = Symbol("LOADER")
+let IMPORT_CACHE = {}
+
+
+function __importFile(node, file, literal) {
+    let importStack = this.importStack
+    let block
+
+    if (IMPORT_CACHE[file]) {
+        block = IMPORT_CACHE[file]
+        importStack.push(file)
+    } else {
+        block = IMPORT_CACHE[file] = _importFile.call(this, node, file, literal)
+    }
+
+    block = block.clone(this.currentBlock)
+    block.parent = this.currentBlock
+    block.scope = false
+    var ret = this.visit(block)
+    importStack.pop()
+    if (!this.resolveURL || this.resolveURL.nocheck) this.paths.pop()
+
+    return ret
+}
 
 
 /**
@@ -69,6 +92,7 @@ function importFile(node, file, literal) {
     try {
         block = parser.parse()
     } catch (err) {
+        importStack.pop()
         var line = parser.lexer.lineno
             , column = parser.lexer.column
 
@@ -84,7 +108,7 @@ function importFile(node, file, literal) {
         }
     }
 
-    // Evaluate imported "root"
+
     block = block.clone(this.currentBlock)
     block.parent = this.currentBlock
     block.scope = false
@@ -121,14 +145,26 @@ class CustomEvaluator extends stylus.Evaluator {
             throw new Error(`@${nodeName} string expected`)
         }
 
-        let pathValue = utils
-            .resolvePathSync(this.loader, imported.filename, importPath.string, [".styl", ".css", ".stylus"])
+        let fromFile = this.importStack.length ? this.importStack[this.importStack.length - 1] : imported.filename
 
-        // console.log(importPath.string, "->", pathValue)
+        // console.log("\t", fromFile, "@@@", importPath.string, this.importStack)
 
-        if (!pathValue) {
-            throw new Error(`Can't ${nodeName} '${importPath.string}' inside '${imported.filename}'`)
+        // if (fromFile === "D:\\Workspace\\Malta\\lib\\anzar\\core\\src\\common.module\\card") {
+        //     console.log(imported, importPath)
+        // }
+
+        let pathValue
+        try {
+            pathValue = utils.resolvePathSync(this.loader, fromFile, importPath.string, [".styl", ".css", ".stylus"])
+            // console.log("\t\t>>", pathValue ? pathValue : "NOT FOUND")
+        } catch (e) {
+            throw new Error(`Can't ${nodeName} '${importPath.string}' inside '${fromFile}'`)
         }
+
+        // if (fromFile === "D:\\Workspace\\Malta\\lib\\anzar\\core\\src\\common.module\\card") {
+        //     console.log(importPath.string, "->", pathValue)
+        // }
+        // console.log(importPath.string, "->", pathValue)
 
         const literal = /\.css(?:"|$)/.test(pathValue)
 
@@ -187,6 +223,8 @@ function assetUrlResolver(loader, file, urlResolver) {
 
 function loadStylus(loader, content, path, options) {
     // TODO: global imports
+
+    // console.log("\n### ", path)
 
     let styl = stylus(content, {
         Evaluator: CustomEvaluator,
