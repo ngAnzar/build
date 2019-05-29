@@ -27,25 +27,32 @@ class CssSource extends RawSource {
 }
 
 const rawCssList = {}
+let skipSelectorMangling = /^[a-zA-Z]{2,3}-/
 
 module.exports = {
+    setSelectorManglingRule: (rule) => {
+        skipSelectorMangling = rule
+    },
+
     get(name) {
         const key = `${name}`
+
         if (REGISTRIES[key] == null) {
             const deps = Object.values(REGISTRIES)
+
             REGISTRIES[key] = new Registry(name)
+
+            REGISTRIES[key].canMangleName = (selector) => {
+                if (selector.nodes.length) {
+                    let primary = selector.nodes[0]
+                    return primary.type === "class" && !skipSelectorMangling.test(primary.name)
+                }
+                return true
+            }
+
             for (let d of deps) {
                 REGISTRIES[key].addDependency(d)
             }
-        }
-
-        // TODO: valami jobb megoldás kéne erre
-        REGISTRIES[key].canMangleName = (selector) => {
-            if (selector.nodes.length) {
-                let primary = selector.nodes[0]
-                return primary.type === "class" && !/^[a-zA-Z]{2,3}-/.test(primary.name)
-            }
-            return true
         }
 
         return REGISTRIES[key]

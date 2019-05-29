@@ -44,6 +44,7 @@ options.setAllDefault({
     out_path: () => {
         return path.join(options.project_path, "dist", options.__MODE__)
     },
+    css_selector_no_mangle: /^nz-/i,
     relative_assets: null
 })
 
@@ -64,6 +65,7 @@ defines.setAllDefault({
 const isDev = options.__MODE__ === "development"
 // console.log(resolve.sync("webpack-hot-client/client"))
 const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
+nzStyle.setSelectorManglingRule(options.css_selector_no_mangle)
 const mainFields = ["esm6", "esm2015", "es2015", "esm5"]
 
 if (isDev) {
