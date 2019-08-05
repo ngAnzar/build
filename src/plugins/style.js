@@ -81,12 +81,6 @@ module.exports = {
                     })
 
                     for (let rfile of rendered) {
-                        let fileId = crypto.createHash("md5")
-                            .update(rfile.group ? rfile.group.id : "@global")
-                            .digest("hex")
-                            .substr(0, 10)
-                        let filename = `${rfile.name}-${fileId}.css`
-                        let filePath = path.join(this.options.outDir || "", filename)
                         let content = rfile.content
 
                         if (!rfile.group || rfile.group.id === "@global") {
@@ -100,6 +94,14 @@ module.exports = {
 
                             content = rawCssContent + icons.getGlobalCss() + content
                         }
+
+                        let fileId = crypto.createHash("md5")
+                            .update(rfile.group ? rfile.group.id : "@global")
+                            .update(content)
+                            .digest("hex")
+                            .substr(0, 10)
+                        let filename = `${rfile.name}.${fileId}.css`
+                        let filePath = path.join(this.options.outDir || "", filename)
 
                         compilation.assets[filePath] = new CssSource(content, rfile.group)
                     }

@@ -88,8 +88,8 @@ export default config({
     output: {
         path: options.out_path,
         publicPath: "/",
-        filename: "js/[name].bundle.[hash].js",
-        chunkFilename: "js/[name].chunk.[hash].js",
+        filename: isDev ? "js/[name].bundle.js" : "js/[name].bundle.[contenthash].js",
+        chunkFilename: isDev ? "js/[name].chunk.js" : "js/[name].chunk.[contenthash].js",
         sourceMapFilename: "[file].map",
         hashDigestLength: 10
     },
