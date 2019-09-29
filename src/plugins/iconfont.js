@@ -40,15 +40,18 @@ class IconRegistry {
             pkg = this.packages[packageName]
         }
 
-        if (!pkg.icons[iconPath]) {
-            pkg.icons[iconPath] = {
+        let iconId = `${packageName}-${path.basename(iconPath).replace(/\.svg/i, "")}`
+
+        if (!pkg.icons[iconId]) {
+            pkg.icons[iconId] = {
                 codepoint: this.nextCodepoint++,
-                name: `${packageName}-${path.basename(iconPath).replace(/\.svg/i, "")}`
+                name: iconId,
+                path: iconPath
             }
         }
 
         let css = `css-${size}`
-        let data = pkg.icons[iconPath]
+        let data = pkg.icons[iconId]
         if (!data[css]) {
             let clsName = "I" + shortid.generate()
             data[css] = {
@@ -110,9 +113,9 @@ class IconRegistry {
             let gc = 0
             for (let pkgName in this.packages) {
                 let pkg = this.packages[pkgName]
-                for (let iconPath in pkg.icons) {
-                    let icon = pkg.icons[iconPath]
-                    let glyph = fs.createReadStream(iconPath)
+                for (let iconId in pkg.icons) {
+                    let icon = pkg.icons[iconId]
+                    let glyph = fs.createReadStream(icon.path)
                     glyph.metadata = {
                         name: icon.name,
                         unicode: [String.fromCharCode(icon.codepoint)]

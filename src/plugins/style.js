@@ -74,39 +74,44 @@ module.exports = {
 
         apply(compiler) {
             compiler.hooks.emit.tapAsync({ name: "nzStyle", context: true }, (context, compilation, callback) => {
-                for (const k in REGISTRIES) {
-                    const reg = REGISTRIES[k]
-                    let rendered = reg.renderCss({
-                        splitByMedia: this.options.splitByMedia
-                    })
+                try {
+                    for (const k in REGISTRIES) {
+                        const reg = REGISTRIES[k]
+                        let rendered = reg.renderCss({
+                            splitByMedia: this.options.splitByMedia
+                        })
 
-                    for (let rfile of rendered) {
-                        let content = rfile.content
+                        for (let rfile of rendered) {
+                            let content = rfile.content
 
-                        if (!rfile.group || rfile.group.id === "@global") {
-                            let rawCss = rawCssList[this.rawCssId]
-                            let rawCssContent = ""
-                            if (rawCss) {
-                                for (const k in rawCss) {
-                                    rawCssContent += rawCss[k]
+                            if (!rfile.group || rfile.group.id === "@global") {
+                                let rawCss = rawCssList[this.rawCssId]
+                                let rawCssContent = ""
+                                if (rawCss) {
+                                    for (const k in rawCss) {
+                                        rawCssContent += rawCss[k]
+                                    }
                                 }
+
+                                content = rawCssContent + icons.getGlobalCss() + content
                             }
 
-                            content = rawCssContent + icons.getGlobalCss() + content
+                            let fileId = crypto.createHash("md5")
+                                .update(rfile.group ? rfile.group.id : "@global")
+                                .update(content)
+                                .digest("hex")
+                                .substr(0, 10)
+                            let filename = `${rfile.name}.${fileId}.css`
+                            let filePath = path.join(this.options.outDir || "", filename)
+
+                            compilation.assets[filePath] = new CssSource(content, rfile.group)
                         }
-
-                        let fileId = crypto.createHash("md5")
-                            .update(rfile.group ? rfile.group.id : "@global")
-                            .update(content)
-                            .digest("hex")
-                            .substr(0, 10)
-                        let filename = `${rfile.name}.${fileId}.css`
-                        let filePath = path.join(this.options.outDir || "", filename)
-
-                        compilation.assets[filePath] = new CssSource(content, rfile.group)
                     }
+                    callback()
+                } catch (e) {
+                    console.error(e)
+                    callback(e)
                 }
-                callback()
             })
         }
 
