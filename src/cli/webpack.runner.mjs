@@ -4,7 +4,7 @@ import webpack from "webpack"
 import Server from "webpack-dev-server"
 import createDomain from "webpack-dev-server/lib/utils/createDomain"
 import createLogger from "webpack-dev-server/lib/utils/createLogger"
-import wdsUtils from "webpack-dev-server/bin/utils"
+import wdsStatus from "webpack-dev-server/lib/utils/status"
 import supportsColor from "supports-color"
 
 import { Config } from "../config/config"
@@ -54,7 +54,7 @@ export class WebpackRunner extends AbstractRunner {
                 }
 
                 const uri = createDomain(options, server.listeningApp)
-                wdsUtils.status(uri, options, log, true)
+                wdsStatus(uri, options, log, true)
             })
 
             httpServer.on("close", () => { resolve() })

@@ -1,6 +1,8 @@
 import path from "path"
 import fs from "fs"
 
+import browserslist from "browserslist"
+
 import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
@@ -44,6 +46,7 @@ options.setAllDefault({
     out_path: () => {
         return path.join(options.project_path, "dist", options.__MODE__)
     },
+    browserslist: ["last 2 years"],
     css_selector_no_mangle: /^nz-/i,
     relative_assets: null
 })
@@ -77,7 +80,7 @@ if (isDev) {
 }
 
 
-// console.log(options)
+console.log(`Supported browsers: ${browserslist(options.browserslist).join(", ")}`)
 
 
 export default config({

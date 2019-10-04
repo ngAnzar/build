@@ -1,7 +1,6 @@
 import log from "webpack-log"
 import chalk from "chalk"
 import WebpackBar from "webpackbar"
-import WebpackBarUtil from "webpackbar/dist/utils/cli"
 import ciInfo from "ci-info"
 
 
@@ -35,7 +34,6 @@ export function fancyOutput(name, color) {
     const logger = log({
         name: "build"
     })
-    const tcolor = WebpackBarUtil.colorize(color)
     let lastProgress = null
     let lastFile = null
 
@@ -51,7 +49,7 @@ export function fancyOutput(name, color) {
                     lastProgress = state.progress
                     lastFile = currentFile
                     let percent = `${state.progress < 10 ? "  " : state.progress < 100 ? " " : ""}${state.progress}%`
-                    let title = tcolor(`[${name} ${percent}]`)
+                    let title = chalk.blueBright(`[${name} ${percent}]`)
                     let nfo = chalk.gray(currentFile)
                     logger.info(`${title} ${nfo}`)
                 }
