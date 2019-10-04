@@ -52,20 +52,25 @@ options.setAllDefault({
 })
 
 
+const isDev = options.__MODE__ === "development"
+
+
 defines.setAllDefault({
     __ENV__: () => options.__ENV__,
     __HMR__: () => options.__HMR__,
     __AOT__: () => options.__AOT__,
     __DEBUG__: () => options.__DEBUG__,
     __MODE__: () => options.__MODE__,
-    __PLATFORM__: () => options.__PLATFORM__
+    __PLATFORM__: () => options.__PLATFORM__,
+    ngDevMode: isDev,
+    ngI18nClosureMode: false
 })
 
 // stylus.options.setAllDefault({
 //     compress: true
 // })
 
-const isDev = options.__MODE__ === "development"
+
 // console.log(resolve.sync("webpack-hot-client/client"))
 const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
 nzStyle.setSelectorManglingRule(options.css_selector_no_mangle)
@@ -91,8 +96,8 @@ export default config({
     output: {
         path: options.out_path,
         publicPath: "/",
-        filename: isDev ? "js/[name].bundle.js" : "js/[name].bundle.[contenthash].js",
-        chunkFilename: isDev ? "js/[name].chunk.js" : "js/[name].chunk.[contenthash].js",
+        filename: isDev ? "js/[name].bundle.js" : "js/[name].bundle.[hash].js",
+        chunkFilename: isDev ? "js/[name].chunk.js" : "js/[name].chunk.[hash].js",
         sourceMapFilename: "[file].map",
         hashDigestLength: 10
     },
