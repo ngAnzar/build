@@ -10,6 +10,7 @@
         "importHelpers": true,
         "noImplicitAny": true,
         "removeComments": true,
+        "stripInternal": true,
         "lib": [
             "es5",
             "es6",
