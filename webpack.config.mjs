@@ -140,8 +140,8 @@ export default config({
     },
 
     optimization: {
-        minimize: !isDev,
-        concatenateModules: !isDev,
+        minimize: options.__ENV__ === "production",
+        concatenateModules: options.__ENV__ !== "development",
         splitChunks: {
             // maxSize: 2 * 1024 * 1024,
             cacheGroups: {
