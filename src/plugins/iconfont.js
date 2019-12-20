@@ -69,8 +69,17 @@ class IconRegistry {
         return data[css]
     }
 
-    getGlobalCss() {
-        let svgFont = this.renderFontSync()
+    getGlobalCssSync() {
+        const svgFont = this.renderFontSync()
+        return this._globalCss(svgFont)
+    }
+
+    async getGlobalCss() {
+        const svgFont = await this.renderFont()
+        return this._globalCss(svgFont)
+    }
+
+    _globalCss(svgFont) {
         if (svgFont && svgFont.length) {
             let ttf = svg2ttf(svgFont)
             let woff = ttf2woff(ttf.buffer)
