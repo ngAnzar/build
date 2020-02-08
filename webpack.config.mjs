@@ -24,6 +24,7 @@ options.setAllDefault({
     __PLATFORM__: () => {
         throw new Error("__PLATFORM__ option is not set")
     },
+    __VERSION__: () => options.pkg.version,
     tsconfig: () => {
         let tscNames = [`tsconfig.${options.__PLATFORM__}.json`, "tsconfig.json"]
         for (let tsconfig of tscNames) {
@@ -32,7 +33,10 @@ options.setAllDefault({
                 return tscPath
             }
         }
-        // throw new Error("Cannot find tsconfig. Try to naming your config something like this: " + tscNames.join(", "))
+    },
+    pkg: () => {
+        let packageJson = path.join(options.project_path, "package.json")
+        return JSON.parse(fs.readFileSync(packageJson), { encoding: "utf-8" })
     },
     babel: () => {
         throw new Error("Missing babel config")
@@ -62,6 +66,7 @@ defines.setAllDefault({
     __DEBUG__: () => options.__DEBUG__,
     __MODE__: () => options.__MODE__,
     __PLATFORM__: () => options.__PLATFORM__,
+    __VERSION__: () => options.__VERSION__,
     ngDevMode: isDev,
     ngI18nClosureMode: false
 })
