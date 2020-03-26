@@ -58,12 +58,16 @@ class IconRegistry {
                 clsName,
                 css: `.${clsName}::before {
                     display: inline-block;
+                    overflow: hidden;
                     content: "\\${data.codepoint.toString(16)}";
                     font: normal ${pkg.weight} ${size}/1 ${pkg.family};
-                    display: inline-block;
                     vertical-align: middle;
                     text-align: center;
-                }`
+                }`,
+                codepoint: data.codepoint,
+                fontWeight: pkg.weight,
+                fontSize: size,
+                fontFamily: pkg.family,
             }
         }
         return data[css]
@@ -174,17 +178,29 @@ class IconRegistry {
 const icons = new IconRegistry()
 
 
+const resolvedCache = {}
+
+function resolveIcon(name, loader, contextPath) {
+    if (resolvedCache[name]) {
+        return resolvedCache[name]
+    }
+
+    const package = name.split(/[\\\/]+/)[0]
+    let iconPath
+
+    try {
+        iconPath = util.resolvePathSync(loader, contextPath, name, [".svg"])
+    } catch (e) {
+        throw new Error(`The requested icon is not found: ${name}`)
+    }
+
+    return resolvedCache[name] = [package, iconPath]
+}
+
+
 function wpFontIcon(loader, contextPath, registry, cssLoader) {
     return (icon, size) => {
-        const package = icon.split(/[\\\/]+/)[0]
-        let iconPath
-
-        try {
-            iconPath = util.resolvePathSync(loader, contextPath, icon, [".svg"])
-        } catch (e) {
-            throw new Error(`The requested icon is not found: ${icon}`)
-        }
-
+        const [package, iconPath] = resolveIcon(icon, loader, contextPath)
         const data = registry.add(package, iconPath, size)
         cssLoader.load(data.css)
         return data.clsName
@@ -192,4 +208,4 @@ function wpFontIcon(loader, contextPath, registry, cssLoader) {
 }
 
 
-module.exports = { IconRegistry, icons, wpFontIcon }
+module.exports = { IconRegistry, icons, wpFontIcon, resolveIcon }

@@ -8,7 +8,8 @@ const stylusNodes = require("stylus/lib/nodes")
 const stylusUtils = require("stylus/lib/utils")
 
 const utils = require("./utils")
-
+const builtins = require("./stylus-builtins")
+const iconFont = require("./iconfont")
 
 const LOADER = Symbol("LOADER")
 let IMPORT_CACHE = {}
@@ -221,7 +222,7 @@ function assetUrlResolver(loader, file, urlResolver) {
 }
 
 
-function loadStylus(loader, content, path, options) {
+function loadStylus(loader, content, filePath, options) {
     // TODO: global imports
 
     // console.log("\n### ", path)
@@ -229,12 +230,14 @@ function loadStylus(loader, content, path, options) {
     let styl = stylus(content, {
         Evaluator: CustomEvaluator,
         [LOADER]: loader,
-        filename: path
+        filename: filePath
     })
 
-    const urlResolver = stylusResolver(loader, path)
+    const urlResolver = stylusResolver(loader, filePath)
     styl.define("url", urlResolver)
-    styl.define("asset-url", assetUrlResolver(loader, path, urlResolver))
+    styl.define("asset-url", assetUrlResolver(loader, filePath, urlResolver))
+    const contextPath = path.dirname(filePath)
+    builtins.iconFunctionFactory(styl, loader, contextPath, iconFont.icons)
 
     if (!options) {
         options = {}
