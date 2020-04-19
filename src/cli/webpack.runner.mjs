@@ -38,10 +38,13 @@ export class WebpackRunner extends AbstractRunner {
                 historyApiFallback: "historyApiFallback" in dvs ? dvs.historyApiFallback : true,
                 host: dvs.host || "localhost",
                 port: dvs.port,
-                hot: true,
+                hot: false,
+                liveReload: true,
                 progress: false,
                 // noInfo: true
-                quiet: true
+                quiet: true,
+                lazy: false,
+                writeToDisk: false
             }
 
             const compiler = webpack(config)
@@ -131,7 +134,7 @@ export class WebpackRunner extends AbstractRunner {
             }
 
             if (args.watch) {
-                compiler.watch({}, compilerCallback)
+                compiler.watch(config.watchOptions || {}, compilerCallback)
             } else {
                 compiler.run(compilerCallback)
             }

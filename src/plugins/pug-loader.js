@@ -30,7 +30,7 @@ function compileHtml(loader, content, ctx) {
     let template = pug.compile(content, ctx)
 
     let result = (locals) => {
-        return `module.exports=${JSON.stringify(template(locals))};`
+        return `module.exports=${JSON.stringify(template(locals).trim())};`
     }
     result.dependencies = template.dependencies
     return result
@@ -71,10 +71,11 @@ function pugPlugin(loader) {
 
 
 module.exports = function pugTemplateLoader(content) {
-    // this.cacheable && this.cacheable()
+    this.cacheable && this.cacheable(false)
 
     // const done = this.async()
     const options = loaderUtil.getOptions(this) || {}
+    const params = this.resourceQuery ? loaderUtil.parseQuery(this.resourceQuery) : {}
 
     let data = {}
     let cssLoader = new nzStyle.CssLoader()

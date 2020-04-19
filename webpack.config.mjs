@@ -13,6 +13,7 @@ const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 import nzStyle from "./src/plugins/style"
 import { options, defines, config } from "./src"
 import putils from "./src/plugins/utils"
+import NzDependencyRebuild from "./src/plugins/nz-dependency-rebuild"
 
 
 options.setAllDefault({
@@ -50,7 +51,13 @@ options.setAllDefault({
     out_path: () => {
         return path.join(options.project_path, "dist", options.__MODE__)
     },
-    browserslist: ["last 2 years"],
+    browserslist: [
+        "> 0.5%",
+        "last 1 years",
+        "Firefox ESR",
+        "not dead",
+        "not IE 9-11"
+    ],
     css_selector_no_mangle: /^nz-/i,
     relative_assets: null
 })
@@ -92,11 +99,10 @@ if (isDev) {
 
 console.log(`Supported browsers: ${browserslist(options.browserslist).join(", ")}`)
 
-
 export default config({
     mode: "[__MODE__]",
-    devtool: isDev ? "cheap-module-eval-source-map" : false,
-    // devtool: false,
+    devtool: isDev ? "cheap-source-map" : false,
+    // devtool: false,s
 
     output: {
         path: options.out_path,
@@ -141,12 +147,15 @@ export default config({
     },
 
     watchOptions: {
-        ignored: [/node_modules[\\\/](?!@anzar)/ig]
+        // maybe need better regex ...
+        // ignored: [/node_modules[\\\/](?!@anzar)/ig]
+        ignored: null
     },
 
     optimization: {
         minimize: options.__ENV__ === "production",
         concatenateModules: options.__ENV__ !== "development",
+        // concatenateModules: true,
         splitChunks: {
             // maxSize: 2 * 1024 * 1024,
             cacheGroups: {
@@ -219,11 +228,22 @@ export default config({
                     test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
                     use: [
                         { loader: "@ngtools/webpack" },
-                        { loader: "angular2-template-loader" }
+                        { loader: "nz-template-loader" }
                     ]
                 }
                 : {
                     test: /\.tsx?/,
+                    use: [
+                        // { loader: "cache-loader", options: { cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "ts"), } },
+                        // { loader: "thread-loader" },
+                        { loader: "babel-loader", options: options.babel },
+                        // { loader: "ts-loader", options: { happyPackMode: true } },
+                        { loader: "ts-loader" },
+                        // { loader: "angular2-template-loader" },
+                        { loader: "nz-template-loader" }
+                    ]
+
+                    /*
                     use: [
                         {
                             loader: "awesome-typescript-loader",
@@ -241,19 +261,19 @@ export default config({
                             loader: "angular2-template-loader"
                         }
                     ]
+                    */
+
                 },
             //#endregion
 
             {
                 test: /\.m?js$/,
                 exclude: /node_modules[\\\/](?!@angular|@anzar|rxjs)/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        ...options.babel,
-                        cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel")
-                    }
-                }
+                use: [
+                    { loader: "cache-loader", options: { cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel"), } },
+                    { loader: "thread-loader" },
+                    { loader: "babel-loader", options: options.babel }
+                ]
             }
         ]
     },
@@ -266,6 +286,7 @@ export default config({
         new DuplicatePackageCheckerPlugin({
             verbose: true
         }),
+        new NzDependencyRebuild(),
         defines.plugin,
         cssPlugin
     ].concat(
