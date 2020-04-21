@@ -4,7 +4,7 @@ const { RawSource } = require("webpack-sources")
 
 const { Registry } = require("@anzar/style")
 
-const { icons } = require("./iconfont")
+const { icons } = require("./style/iconfont")
 
 
 const REGISTRIES = {}

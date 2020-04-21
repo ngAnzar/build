@@ -69,7 +69,7 @@ export class Options {
                     }
                 }
             } else {
-                return newValue
+                return Array.isArray(newValue) ? newValue : [newValue]
             }
         })
     }

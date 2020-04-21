@@ -10,10 +10,11 @@ import BundleAnalyzerPlugin from "webpack-bundle-analyzer"
 import ngtools from "@ngtools/webpack"
 const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 
-import nzStyle from "./src/plugins/style"
+// import nzStyle from "./src/plugins/style__"
 import { options, defines, config } from "./src"
 import putils from "./src/plugins/utils"
 import NzDependencyRebuild from "./src/plugins/nz-dependency-rebuild"
+import NzStylePlugin from "./src/plugins/style/plugin"
 
 
 options.setAllDefault({
@@ -42,8 +43,8 @@ options.setAllDefault({
     babel: () => {
         throw new Error("Missing babel config")
     },
-    aotEntryModule: () => {
-        throw new Error("Missing aotEntryModule config")
+    aotConfig: () => {
+        throw new Error("Missing aot config")
     },
     node_modules: () => {
         return putils.getNodeModulesUp(options.project_path)
@@ -73,9 +74,7 @@ defines.setAllDefault({
     __DEBUG__: () => options.__DEBUG__,
     __MODE__: () => options.__MODE__,
     __PLATFORM__: () => options.__PLATFORM__,
-    __VERSION__: () => options.__VERSION__,
-    ngDevMode: isDev,
-    ngI18nClosureMode: false
+    __VERSION__: () => options.__VERSION__
 })
 
 // stylus.options.setAllDefault({
@@ -84,8 +83,26 @@ defines.setAllDefault({
 
 
 // console.log(resolve.sync("webpack-hot-client/client"))
-const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
-nzStyle.setSelectorManglingRule(options.css_selector_no_mangle)
+// const cssPlugin = new nzStyle.ExportCssPlugin({ outDir: "css", splitByMedia: true })
+
+const cssPlugin = new NzStylePlugin({
+    outDir: "css",
+    splitByMedia: true,
+    skipMangle: options.css_selector_no_mangle
+})
+
+if (options.projectStyle) {
+    for (const s of options.projectStyle) {
+        cssPlugin.addProjectStyle(s)
+    }
+}
+
+if (options.externalStyle) {
+    for (const s of options.externalStyle) {
+        cssPlugin.addExternalStyle(s)
+    }
+}
+
 const mainFields = ["esm6", "esm2015", "es2015", "esm5"]
 
 if (isDev) {
@@ -196,7 +213,8 @@ export default config({
                             data: defines.object,
                             stylus: {
                                 compress: true,
-                                imports: options.stylusImports
+                                imports: options.stylusImports,
+                                defines: defines.object
                             }
                         }
                     }
@@ -205,14 +223,20 @@ export default config({
             {
                 test: /\.styl(us)?$/,
                 use: [
-                    cssPlugin.extract(),
-                    { loader: "stylus-loader" }
+                    cssPlugin.externalStyleLoader(),
+                    {
+                        loader: "stylus-loader",
+                        options: {
+                            imports: options.stylusImports,
+                            defines: defines.object
+                        }
+                    }
                 ]
             },
             {
                 test: /\.css$/,
                 use: [
-                    cssPlugin.extract()
+                    cssPlugin.externalStyleLoader()
                 ]
             },
             {
@@ -227,8 +251,8 @@ export default config({
                 ? {
                     test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
                     use: [
-                        { loader: "@ngtools/webpack" },
-                        { loader: "nz-template-loader" }
+                        { loader: "babel-loader", options: options.babel },
+                        { loader: "@ngtools/webpack" }
                     ]
                 }
                 : {
@@ -239,35 +263,13 @@ export default config({
                         { loader: "babel-loader", options: options.babel },
                         // { loader: "ts-loader", options: { happyPackMode: true } },
                         { loader: "ts-loader" },
-                        // { loader: "angular2-template-loader" },
                         { loader: "nz-template-loader" }
                     ]
-
-                    /*
-                    use: [
-                        {
-                            loader: "awesome-typescript-loader",
-                            options: {
-                                configFileName: options.tsconfig,
-                                useBabel: true,
-                                babelOptions: options.babel,
-                                babelCore: "@babel/core",
-                                useCache: true,
-                                cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "awesome"),
-                                ignoreDiagnostics: [2451]
-                            }
-                        },
-                        {
-                            loader: "angular2-template-loader"
-                        }
-                    ]
-                    */
-
                 },
             //#endregion
 
             {
-                test: /\.m?js$/,
+                test: /\.[mc]?js$/,
                 exclude: /node_modules[\\\/](?!@angular|@anzar|rxjs)/,
                 use: [
                     { loader: "cache-loader", options: { cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel"), } },
@@ -294,8 +296,9 @@ export default config({
             ? [
                 new AngularCompilerPlugin({
                     tsConfigPath: options.tsconfig,
-                    entryModule: options.aotEntryModule,
-                    sourceMap: isDev
+                    basePath: options.project_path,
+                    sourceMap: isDev,
+                    ...options.aotConfig
                 })
             ]
             : []

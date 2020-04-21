@@ -6,10 +6,11 @@ const pugLex = require("pug-lexer")
 const pugWalk = require("pug-walk")
 
 const nzStyle = require("@anzar/style")
-const stylusLoader = require("./stylus-loader")
+const { loadStylus } = require("./style/stylus")
 const utils = require("./utils")
-const styleRegistry = require("./style")
-const iconFont = require("./iconfont")
+// const styleRegistry = require("./style__")
+const iconFont = require("./style/iconfont")
+const NzStylePlugin = require("./style/plugin")
 
 
 function compileClient(loader, content, ctx) {
@@ -38,13 +39,9 @@ function compileHtml(loader, content, ctx) {
 
 
 function pugPlugin(loader) {
-    function replaceNormalClassNames(input, replacer) {
-
-    }
-
     return {
         resolve(request, resourcePath, options) {
-            return utils.resolvePathSync(loader, resourcePath, request, [".pug"])
+            return utils.resolvePathSyncFromLoader(loader, resourcePath, request, [".pug"])
         },
 
         postLoad(ast) {
@@ -70,16 +67,13 @@ function pugPlugin(loader) {
 }
 
 
-module.exports = function pugTemplateLoader(content) {
-    this.cacheable && this.cacheable(false)
+function loader(content, options, cssPlugin) {
 
-    // const done = this.async()
-    const options = loaderUtil.getOptions(this) || {}
     const params = this.resourceQuery ? loaderUtil.parseQuery(this.resourceQuery) : {}
 
     let data = {}
-    let cssLoader = new nzStyle.CssLoader()
-    // utils.extendDataWithDefines(this, data)
+    const cssLoader = cssPlugin.cssLoader.newChildLoader()
+    const resolvePath = utils.pathResolverFromLoader(this)
 
     let ctx = Object.assign({
         filename: this.resourcePath,
@@ -97,23 +91,16 @@ module.exports = function pugTemplateLoader(content) {
         ctx.filters = {}
     }
 
-    ctx.data.style = (...args) => {
-        const styl = stylusLoader.loadStylus(this, "", this.resourcePath, {
-            define: ctx.data,
-            ...options.stylus
-        })
-        cssLoader.load(styl.render())
-        styl.deps().forEach(this.addDependency)
-        let x = nzStyle.newStyle(styleRegistry.get("global"), cssLoader)
-        return x(...args)
-    }
-
+    ctx.data.style = nzStyle.newStyle(cssPlugin.registry, cssLoader)
     ctx.data.icon = iconFont.wpFontIcon(this, this.resourcePath, iconFont.icons, cssLoader)
 
+    const stylusOptions = options.stylus || {}
+    const stylusDefines = Object.assign({}, stylusOptions.defines || {}, ctx.data)
+
     ctx.filters.stylus = (text, attrs) => {
-        const styl = stylusLoader.loadStylus(this, text, this.resourcePath, {
-            define: ctx.data,
-            ...options.stylus
+        const styl = loadStylus(resolvePath, text, this.resourcePath, {
+            ...options.stylus,
+            defines: stylusDefines
         })
         const css = styl.render()
         styl.deps().forEach(this.addDependency)
@@ -122,8 +109,6 @@ module.exports = function pugTemplateLoader(content) {
             return `<style type="text/css">\n${css}</style>`
         } else {
             cssLoader.load(css)
-            ctx.data.style = nzStyle.newStyle(styleRegistry.get("global"), cssLoader)
-            // ctx.data.style = styleRegistry.get(options.group || "all", options.scope).loadCss(css)
             return ""
         }
     }
@@ -145,4 +130,21 @@ module.exports = function pugTemplateLoader(content) {
 
     template.dependencies.forEach(this.addDependency)
     return template(ctx.data)
+}
+
+
+
+module.exports = function pugTemplateLoader(content, sourceMap, meta) {
+    this.cacheable && this.cacheable(false)
+    const done = this.async()
+    const options = loaderUtil.getOptions(this) || {}
+    const cssPlugin = NzStylePlugin.instance
+
+    cssPlugin.stylesReady
+        .then(succ => {
+            // console.log("pugTemplateLoader stylesReady", this.resourcePath)
+            const result = loader.call(this, content, options, cssPlugin)
+            done(null, result, sourceMap, meta)
+        })
+        .catch(done)
 }

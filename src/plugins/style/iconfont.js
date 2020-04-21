@@ -7,7 +7,7 @@ const svg2ttf = require("svg2ttf")
 const ttf2woff = require("ttf2woff")
 const { PassThrough } = require("stream")
 
-const util = require("./utils")
+const util = require("../utils")
 
 
 class IconRegistry {
@@ -180,7 +180,7 @@ const icons = new IconRegistry()
 
 const resolvedCache = {}
 
-function resolveIcon(name, loader, contextPath) {
+function resolveIcon(name, resolvePath, contextPath) {
     if (resolvedCache[name]) {
         return resolvedCache[name]
     }
@@ -189,7 +189,7 @@ function resolveIcon(name, loader, contextPath) {
     let iconPath
 
     try {
-        iconPath = util.resolvePathSync(loader, contextPath, name, [".svg"])
+        iconPath = resolvePath(contextPath, name, [".svg"])
     } catch (e) {
         throw new Error(`The requested icon is not found: ${name}`)
     }
@@ -199,8 +199,9 @@ function resolveIcon(name, loader, contextPath) {
 
 
 function wpFontIcon(loader, contextPath, registry, cssLoader) {
+    const resolvePath = util.pathResolverFromLoader(loader)
     return (icon, size) => {
-        const [package, iconPath] = resolveIcon(icon, loader, contextPath)
+        const [package, iconPath] = resolveIcon(icon, resolvePath, contextPath)
         const data = registry.add(package, iconPath, size)
         cssLoader.load(data.css)
         return data.clsName

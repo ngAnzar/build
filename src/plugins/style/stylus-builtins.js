@@ -3,7 +3,7 @@ const stylusUtil = require("stylus/lib/utils")
 const { resolveIcon } = require("./iconfont")
 
 
-function iconFunctionFactory(stylus, loader, contextPath, registry) {
+function iconFunctionFactory(stylus, resolvePath, contextPath, registry) {
     function nzIcon(name, size) {
         stylusUtil.assertType(name, "string", "name")
         stylusUtil.assertType(size, "unit", "size")
@@ -11,7 +11,7 @@ function iconFunctionFactory(stylus, loader, contextPath, registry) {
         name = stylusUtil.unwrap(name).first.val
         size = stylusUtil.unwrap(size).first.val
 
-        const [icoPackage, icoPath] = resolveIcon(name, loader, contextPath)
+        const [icoPackage, icoPath] = resolveIcon(name, resolvePath, contextPath)
         const icoData = registry.add(icoPackage, icoPath, size)
 
         const group = new stylusNode.Group()

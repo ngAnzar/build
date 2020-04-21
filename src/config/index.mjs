@@ -154,8 +154,13 @@ function factory(isMulti) {
             configPath = `/${configPath}`
         }
         let result = new Config(null, isMulti, configPath)
-        for (let i = 0, l = arguments.length; i < l; i++) {
-            result.update(await getConfig(arguments[i], configPath))
+
+        try {
+            for (let i = 0, l = arguments.length; i < l; i++) {
+                result.update(await getConfig(arguments[i], configPath))
+            }
+        } catch (e) {
+            console.log(e)
         }
         return result
     }

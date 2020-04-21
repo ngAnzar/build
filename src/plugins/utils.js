@@ -77,17 +77,38 @@ const cache = {}
 
 
 module.exports = _exports = {
-    resolvePathSync(loader, contextPath, request, extensions) {
+    pathResolver(fs, alias) {
+        return (contextPath, request, extensions) => {
+            return this.resolvePathSync(fs, alias, contextPath, request, extensions)
+        }
+    },
+
+    pathResolverFromLoader(loader) {
+        let alias = {}
+        try {
+            alias = loader._compilation.compiler.options.resolve.alias
+        } catch (e) { }
+        return this.pathResolver(loader.fs, alias)
+    },
+
+    resolvePathSyncFromLoader(loader, contextPath, request, extensions) {
+        let alias = {}
+        try {
+            alias = loader._compilation.compiler.options.resolve.alias
+        } catch (e) { }
+        return this.resolvePathSync(loader.fs, alias, contextPath, request, extensions)
+    },
+
+    resolvePathSync(fs, alias, contextPath, request, extensions) {
         let key = path.isAbsolute(request) ? request : `${contextPath}///${request}///${extensions.join("")}`
         if (key in cache) {
             return cache[key]
         } else {
-            return cache[key] = _exports._resolvePathSync(loader, contextPath, request, extensions, false)
+            return cache[key] = _exports._resolvePathSync(fs, alias, contextPath, request, extensions, false)
         }
     },
 
-    _resolvePathSync(loader, contextPath, request, extensions, skipDir) {
-
+    _resolvePathSync(fs, alias, contextPath, request, extensions, skipDir) {
         // Protocol-relative URI
         if (request.startsWith("//")) {
             return request
@@ -96,7 +117,7 @@ module.exports = _exports = {
             if (uri.protocol && ["http:", "https:", "ftp:"].indexOf(uri.protocol.toLowerCase()) > -1) {
                 return uri.href
             } else {
-                if (isFile(loader.fs, contextPath)) {
+                if (isFile(fs, contextPath)) {
                     contextPath = path.dirname(contextPath)
                 }
 
@@ -108,19 +129,9 @@ module.exports = _exports = {
                     request = path.normalize(path.join(contextPath, request))
                 }
 
-                if (!skipDir && isDir(loader.fs, request)) {
-                    return _exports._resolvePathSync(loader, contextPath, path.join(request, "index"), extensions, true)
+                if (!skipDir && isDir(fs, request)) {
+                    return _exports._resolvePathSync(fs, alias, contextPath, path.join(request, "index"), extensions, true)
                 }
-
-                let alias = {}
-                try {
-                    alias = loader._compilation.compiler.options.resolve.alias
-                } catch (e) { }
-
-                let modules = []
-                try {
-                    modules = loader._compilation.compiler.options.resolve.modules
-                } catch (e) { }
 
                 for (let k in alias) {
                     if (request.startsWith(k)) {
@@ -139,45 +150,11 @@ module.exports = _exports = {
                     // paths: paths
                 })
 
-                if (!skipDir && isDir(loader.fs, resolved)) {
-                    return _exports._resolvePathSync(loader, contextPath, path.join(request, "index"), extensions, true)
+                if (!skipDir && isDir(fs, resolved)) {
+                    return _exports._resolvePathSync(fs, alias, contextPath, path.join(request, "index"), extensions, true)
                 }
 
                 return resolved
-                // for (const ext of extensions) {
-                // const full = reqWithExt.startsWith(".") ? path.join()
-
-                // if (!reqWithExt.startsWith(".")) {
-                //     try {
-                //         return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
-                //     } catch (ee) {
-                //         continue
-                //     }
-                // }
-
-                // let reqWithExt = request.endsWith(ext) ? request : request + ext
-
-                // try {
-                //     return wpResolveSync(loader, contextPath, reqWithExt)
-                // } catch (e) {
-                //     if (!reqWithExt.startsWith(".")) {
-                //         try {
-                //             return nodeResolve.sync(reqWithExt, { basedir: contextPath, extensions: extensions, preserveSymlinks: false })
-                //         } catch (ee) {
-                //             continue
-                //         }
-                //     }
-                // }
-                // }
-
-                // let isDir = false
-                // try {
-                //     isDir = fs.statSync(resolved).isDirectory()
-                // } catch (e) { }
-
-                // if (isDir) {
-                //     return _exports.resolvePathSync(loader, contextPath, path.join(resolved, "index"), extensions)
-                // }
             }
         }
     },

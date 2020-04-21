@@ -1,6 +1,6 @@
 const loaderUtil = require("loader-utils")
 const CleanCSS = require("clean-css")
-const nzStyle = require("./style")
+const nzStyle = require("./style__")
 
 module.exports = function (content) {
     const options = loaderUtil.getOptions(this) || {}
