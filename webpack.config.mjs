@@ -7,6 +7,7 @@ import webpack from "webpack"
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin"
 import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plugin"
 import BundleAnalyzerPlugin from "webpack-bundle-analyzer"
+import TerserPlugin from "terser-webpack-plugin"
 import ngtools from "@ngtools/webpack"
 const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
 
@@ -171,6 +172,18 @@ export default config({
 
     optimization: {
         minimize: options.__ENV__ === "production",
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    ecma: 8,
+                    safari10: true,
+                    compress: {
+                        pure_funcs: ["console.info", "console.debug", "console.warn"],
+                        drop_console: true
+                    }
+                }
+            })
+        ],
         concatenateModules: options.__ENV__ !== "development",
         // concatenateModules: true,
         splitChunks: {
@@ -198,6 +211,10 @@ export default config({
                 // }
             }
         }
+    },
+
+    performance: {
+        hints: false
     },
 
     module: {
@@ -258,10 +275,13 @@ export default config({
                 : {
                     test: /\.tsx?/,
                     use: [
-                        // { loader: "cache-loader", options: { cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "ts"), } },
-                        // { loader: "thread-loader" },
+                        // {
+                        //     loader: "cache-loader",
+                        //     options: {
+                        //         cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "ts"),
+                        //     }
+                        // },
                         { loader: "babel-loader", options: options.babel },
-                        // { loader: "ts-loader", options: { happyPackMode: true } },
                         { loader: "ts-loader" },
                         { loader: "nz-template-loader" }
                     ]
@@ -272,8 +292,12 @@ export default config({
                 test: /\.[mc]?js$/,
                 exclude: /node_modules[\\\/](?!@angular|@anzar|rxjs)/,
                 use: [
-                    { loader: "cache-loader", options: { cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel"), } },
-                    { loader: "thread-loader" },
+                    {
+                        loader: "cache-loader",
+                        options: {
+                            cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel"),
+                        }
+                    },
                     { loader: "babel-loader", options: options.babel }
                 ]
             }

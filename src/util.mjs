@@ -59,6 +59,5 @@ export function fancyOutput(name, color) {
 }
 
 export function fancyOutputEnabled() {
-    return false
     return !ciInfo.isCI
 }
