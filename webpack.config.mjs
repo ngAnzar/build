@@ -171,21 +171,25 @@ export default config({
     },
 
     optimization: {
-        minimize: options.__ENV__ === "production",
+        concatenateModules: options.__ENV__ !== "development",
+        minimize: options.__ENV__ !== "development",
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
                     ecma: 8,
-                    safari10: true,
+                    ie8: false,
+                    safari10: false,
+                    mangle: options.__ENV__ === "production",
                     compress: {
                         pure_funcs: ["console.info", "console.debug", "console.warn"],
-                        drop_console: true
+                        drop_console: options.__ENV__ === "production"
+                    },
+                    output: {
+                        beautify: options.__ENV__ !== "production"
                     }
                 }
             })
         ],
-        concatenateModules: options.__ENV__ !== "development",
-        // concatenateModules: true,
         splitChunks: {
             // maxSize: 2 * 1024 * 1024,
             cacheGroups: {

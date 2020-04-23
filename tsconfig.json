@@ -12,13 +12,17 @@
         "removeComments": true,
         "stripInternal": true,
         "lib": [
-            "es5",
-            "es6",
+            "es2018",
             "dom"
         ]
     },
     "angularCompilerOptions": {
         "fullTemplateTypeCheck": true,
-        "strictInjectionParameters": true
+        "strictInjectionParameters": true,
+        "preserveWhitespaces": false,
+        "strictTemplates": false,
+        "trace": true,
+        "annotationsAs": "static",
+        "enableIvy": true
     }
 }
