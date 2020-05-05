@@ -51,7 +51,7 @@ options.setAllDefault({
         return putils.getNodeModulesUp(options.project_path)
     },
     out_path: () => {
-        return path.join(options.project_path, "dist", options.__MODE__)
+        return path.join(options.project_path, "dist", options.__ENV__)
     },
     browserslist: [
         "> 0.5%",
@@ -299,7 +299,7 @@ export default config({
                     {
                         loader: "cache-loader",
                         options: {
-                            cacheDirectory: path.join(options.project_path, "dist", "[__MODE__]-cache", "babel"),
+                            cacheDirectory: path.join(options.project_path, "dist", "[__ENV__]-cache", "babel"),
                         }
                     },
                     { loader: "babel-loader", options: options.babel }
