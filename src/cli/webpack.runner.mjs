@@ -121,11 +121,11 @@ export class WebpackRunner extends AbstractRunner {
                         reject()
                         return
                     }
-                } else if (!silent) {
-                    // process.stdout.write(stats.toString(outputOptions))
-
+                } else {
                     if (args.watch) {
-                        console.log("\nWebpack watching changes ...")
+                        if (!silent) {
+                            console.log("\nWebpack watching changes ...")
+                        }
                     } else {
                         resolve()
                     }

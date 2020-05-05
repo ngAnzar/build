@@ -68,7 +68,6 @@ function pugPlugin(loader) {
 
 
 function loader(content, options, cssPlugin) {
-
     const params = this.resourceQuery ? loaderUtil.parseQuery(this.resourceQuery) : {}
 
     let data = {}

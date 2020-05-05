@@ -153,7 +153,7 @@ export class Application {
 
     waitFor(runnerName, eventName) {
         const start = new Date()
-        const halfMin = 30 * 1000
+        const halfHour = 30 * 60 * 1000
 
         return new Promise((resolve, reject) => {
             let eventOccured = true
@@ -169,7 +169,7 @@ export class Application {
 
             let started = false
             const tick = () => {
-                if (!started && new Date() - start >= halfMin) {
+                if (!started && new Date() - start >= halfHour) {
                     throw new Error(`deadlock found in waitFor ${runnerName}`)
                 }
 
