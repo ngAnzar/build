@@ -135,11 +135,13 @@ export async function importConfig(path, relativeFrom) {
 }
 
 
-async function getConfig(config, relativeFrom) {
-    if (typeof config === "string") {
-        return importConfig(config, relativeFrom)
+async function getConfig(config_, relativeFrom) {
+    if (typeof config_ === "string") {
+        return importConfig(config_, relativeFrom)
+    } else if (typeof config_ === "function") {
+        return config_()
     } else {
-        return config || {}
+        return config_ || {}
     }
 }
 
