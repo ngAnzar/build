@@ -10,6 +10,7 @@ import BundleAnalyzerPlugin from "webpack-bundle-analyzer"
 import TerserPlugin from "terser-webpack-plugin"
 import ngtools from "@ngtools/webpack"
 const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
+import resolve from "resolve"
 
 // import nzStyle from "./src/plugins/style__"
 import { options, defines, config } from "./src"

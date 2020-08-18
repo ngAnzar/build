@@ -5,7 +5,6 @@ import isPlainObject from "is-plain-object"
 import { Defines, DefinesProxy, defines } from "../defines"
 import { options } from "../options"
 
-
 export class Behavior {
     init(config, properties) { }
 
@@ -229,7 +228,7 @@ export class Merge extends Behavior {
 
 
 function mergeProps(a, b) {
-    return webpackMerge(a, b)
+    return webpackMerge.merge(a, b)
 }
 
 
