@@ -120,7 +120,7 @@ console.log(`Supported browsers: ${browserslist(options.browserslist).join(", ")
 
 export default config({
     mode: "[__MODE__]",
-    devtool: "cheap-source-map",
+    devtool: isDev ? "cheap-source-map" : "source-map",
     // devtool: false,s
 
     output: {
@@ -172,21 +172,21 @@ export default config({
     },
 
     optimization: {
-        concatenateModules: options.__ENV__ !== "development",
-        minimize: options.__ENV__ !== "development",
+        concatenateModules: !isDev,
+        minimize: !isDev,
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
                     ecma: 8,
                     ie8: false,
                     safari10: false,
-                    mangle: options.__ENV__ === "production",
+                    mangle: !isDev,
                     compress: {
                         pure_funcs: ["console.info", "console.debug", "console.warn"],
                         drop_console: options.__ENV__ === "production"
                     },
                     output: {
-                        beautify: options.__ENV__ !== "production"
+                        beautify: false
                     }
                 }
             })
