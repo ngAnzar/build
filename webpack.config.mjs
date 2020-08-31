@@ -120,7 +120,7 @@ console.log(`Supported browsers: ${browserslist(options.browserslist).join(", ")
 
 export default config({
     mode: "[__MODE__]",
-    devtool: isDev ? "cheap-source-map" : false,
+    devtool: "cheap-source-map",
     // devtool: false,s
 
     output: {
