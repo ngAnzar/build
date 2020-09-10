@@ -44,7 +44,8 @@ export class WebpackRunner extends AbstractRunner {
                 // noInfo: true
                 quiet: true,
                 lazy: false,
-                writeToDisk: false
+                writeToDisk: false,
+                disableHostCheck: true
             }
 
             const compiler = webpack(config)
