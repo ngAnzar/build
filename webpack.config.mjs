@@ -20,7 +20,7 @@ import NzStylePlugin from "./src/plugins/style/plugin"
 
 
 options.setAllDefault({
-    __ENV__: () => process.env.NODE_ENV || "development",
+    __ENV__: () => process.env.BUILD_ENV || "development",
     __HMR__: () => process.env.HMR === "true",
     __AOT__: () => process.env.AOT === "true",
     __DEBUG__: () => process.env.DEBUG === "true" || options.__ENV__ === "development",
