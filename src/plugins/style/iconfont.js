@@ -61,8 +61,12 @@ class IconRegistry {
                     overflow: hidden;
                     content: "\\${data.codepoint.toString(16)}";
                     font: normal ${pkg.weight} ${size}/1 ${pkg.family};
+                    text-transform: none;
                     vertical-align: middle;
                     text-align: center;
+                    speak: none;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
                 }`,
                 codepoint: data.codepoint,
                 fontWeight: pkg.weight,
