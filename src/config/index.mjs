@@ -135,11 +135,11 @@ export async function importConfig(path, relativeFrom) {
 }
 
 
-async function getConfig(config_, relativeFrom) {
+async function getConfig(config_, relativeFrom, currentCfg) {
     if (typeof config_ === "string") {
         return importConfig(config_, relativeFrom)
     } else if (typeof config_ === "function") {
-        return config_()
+        return config_(currentCfg)
     } else {
         return config_ || {}
     }
@@ -159,7 +159,7 @@ function factory(isMulti) {
 
         try {
             for (let i = 0, l = arguments.length; i < l; i++) {
-                result.update(await getConfig(arguments[i], configPath))
+                result.update(await getConfig(arguments[i], configPath, result))
             }
         } catch (e) {
             console.log(e)
