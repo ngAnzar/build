@@ -54,6 +54,7 @@ export class WebpackRunner extends AbstractRunner {
 
             const httpServer = server.listen(options.port, options.host, (err) => {
                 if (err) {
+                    console.log(err)
                     throw err
                 }
 
