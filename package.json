@@ -66,6 +66,7 @@
     "webpack-serve": "^3.2.0",
     "webpack-sources": "^1.4.3",
     "webpackbar": "^4.0.0",
-    "terser-webpack-plugin": "4.1.0"
+    "terser-webpack-plugin": "4.1.0",
+    "minify-xml": "^2.5.0"
   }
 }

@@ -264,7 +264,7 @@ export default config({
             {
                 test: /\.svg/,
                 use: [
-                    "base64-inline-loader"
+                    "svg-inline-loader"
                 ]
             },
 

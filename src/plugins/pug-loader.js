@@ -62,7 +62,15 @@ function pugPlugin(loader) {
                 (node, replace) => {
 
                 })
-        }
+        },
+
+        // postParse: function (ast) {
+        //     return pugWalk(ast, (node, replace) => {
+        //         if (["Mixin", "MixinBlock", "NamedBlock"].indexOf(node.type) !== -1) {
+        //             ast._mustBeInlined = true;
+        //         }
+        //     });
+        // },
     }
 }
 
@@ -92,6 +100,7 @@ function loader(content, options, cssPlugin) {
 
     ctx.data.style = nzStyle.newStyle(cssPlugin.registry, cssLoader)
     ctx.data.icon = iconFont.wpFontIcon(this, this.resourcePath, iconFont.icons, cssLoader)
+    ctx.globals = ["require"]
 
     const stylusOptions = options.stylus || {}
     const stylusDefines = Object.assign({}, stylusOptions.defines || {}, ctx.data)
@@ -128,6 +137,11 @@ function loader(content, options, cssPlugin) {
     }
 
     template.dependencies.forEach(this.addDependency)
+
+    // if (this.resourcePath.endsWith("browser.pug")) {
+    //     console.log(compileHtml(this, content, ctx)(ctx.data))
+    // }
+
     return template(ctx.data)
 }
 
