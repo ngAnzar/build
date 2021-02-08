@@ -1,4 +1,5 @@
 const fs = require("fs")
+const path = require("path")
 
 
 class Registry {
@@ -50,13 +51,11 @@ class NzDependencyRebuild {
     apply(compiler) {
         compiler.hooks.afterEmit.tapAsync("NzDependencyRebuild", (compilation, callback) => {
             const registry = NzDependencyRebuild.registry
-            const ds = [compilation.fileDependencies, compilation.contextDependencies]
 
             const deps = registry.dependencies()
-            for (const d of ds) {
-                for (const rd of deps) {
-                    d.add(rd)
-                }
+            for (const rd of deps) {
+                compilation.fileDependencies.add(rd)
+                compilation.contextDependencies.add(path.dirname(rd))
             }
 
             callback()
@@ -67,40 +66,61 @@ class NzDependencyRebuild {
             watch.hooks.compilation.tap("NzDependencyRebuild", (compilation) => {
                 try {
                     const registry = NzDependencyRebuild.registry
+                    const files = new Set([...Object.keys(registry.deps), ...Object.keys(registry.reverse)])
 
-                    const changes = Array.from(compilation.fileTimestamps.keys())
-                        .filter(v => (this.prevTimestamps.get(v) || this.startTime) < compilation.fileTimestamps.get(v))
+                    // console.log(files)
 
-                    const removeCached = changes.filter(v => !!registry.reverse[v])
 
-                    const resources = changes.map(v => registry.resources(v))
-                        .filter(v => v.size > 0)
-                        .flatMap(v => Array.from(v))
-                        .filter(v => changes.indexOf(v) === -1)
-                        .filter((v, i, a) => a.indexOf(v) === i)
+                    compilation.fileSystemInfo.createSnapshot(mtime, files, null, null, null, (err, res) => {
+                        if (err) {
+                            console.error(err)
+                            throw err;
+                        } else {
+                            const fileTimestamps = !res.fileTimestamps
+                                ? new Map()
+                                : Array.from(res.fileTimestamps.keys())
+                                    .reduce((map, key) => {
+                                        map.set(key, res.fileTimestamps.get(key).safeTime)
+                                        return map
+                                    }, new Map())
 
-                    for (const changed of removeCached) {
-                        for (const cacheKey in compilation.cache) {
-                            const module = compilation.cache[cacheKey]
-                            if (module.resource === changed) {
-                                delete compilation.cache[cacheKey]
+                            const changes = Array.from(fileTimestamps.keys())
+                                .filter(v => (this.prevTimestamps.get(v) || this.startTime) < fileTimestamps.get(v))
+
+                            const removeCached = changes.filter(v => !!registry.reverse[v])
+
+                            const resources = changes.map(v => registry.resources(v))
+                                .filter(v => v.size > 0)
+                                .flatMap(v => Array.from(v))
+                                .filter(v => changes.indexOf(v) === -1)
+                                .filter((v, i, a) => a.indexOf(v) === i)
+
+                            for (const changed of removeCached) {
+                                for (const cacheKey in compilation.cache) {
+                                    const module = compilation.cache[cacheKey]
+                                    if (module.resource === changed) {
+                                        delete compilation.cache[cacheKey]
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    for (const resource of resources) {
-                        for (const cacheKey in compilation.cache) {
-                            const module = compilation.cache[cacheKey]
-                            if (module.resource === resource) {
-                                fs.utimesSync(resource, mtime, mtime)
-                                compiler.hooks.invalid.call(resource, new Date())
+                            for (const resource of resources) {
+                                for (const cacheKey in compilation.cache) {
+                                    const module = compilation.cache[cacheKey]
+                                    if (module.resource === resource) {
+                                        fs.utimesSync(resource, mtime, mtime)
+                                        compiler.hooks.invalid.call(resource, new Date())
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    this.prevTimestamps = new Map(compilation.fileTimestamps)
+                            this.prevTimestamps = fileTimestamps
+                        }
+                    })
+                    // console.log(.fileTimestamps)
+
                 } catch (e) {
-                    console.log(e)
+                    console.error(e)
                 }
             })
         })

@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import isPlainObject from "is-plain-object"
+import { isPlainObject } from "is-plain-object"
 
 const DATA = Symbol("DATA")
 

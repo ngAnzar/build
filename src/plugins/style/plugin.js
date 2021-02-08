@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const webpack = require("webpack")
 const crypto = require("crypto")
 const CleanCSS = require("clean-css")
 const { RawSource } = require("webpack-sources")
@@ -120,7 +121,7 @@ module.exports = class NzStylePlugin {
                         css = styl.render()
 
                         for (const assetPath in assets) {
-                            compilation.assets[assets[assetPath]] = new RawSource(fs.readFileSync(assetPath))
+                            compilation.emitAsset(assets[assetPath], new RawSource(fs.readFileSync(assetPath)))
                         }
                     } else {
                         css = v.content
@@ -135,41 +136,49 @@ module.exports = class NzStylePlugin {
             })
         })
 
-        compiler.hooks.emit.tapAsync("NzStylePlugin", (compilation, callback) => {
-            this.registry.registerUnhandled(this.cssLoader)
-            this.compileStyle()
-                .then(styles => {
-                    const external = this.compileExternalStyle()
-                    if (external.length) {
-                        if (!styles["@global"]) {
-                            styles["@global"] = { content: external }
-                        } else {
-                            styles["@global"].content = external + "\n\n" + styles["@global"].content
-                        }
-                    }
+        compiler.hooks.thisCompilation.tap("NzStylePlugin", (compilation) => {
+            compilation.hooks.processAssets.tapAsync(
+                { name: "NzStylePlugin", stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+                (compilationAssets, callback) => {
+                    this.registry.registerUnhandled(this.cssLoader)
+                    this.compileStyle()
+                        .then(styles => {
+                            const external = this.compileExternalStyle()
+                            if (external.length) {
+                                if (!styles["@global"]) {
+                                    styles["@global"] = { content: external }
+                                } else {
+                                    styles["@global"].content = external + "\n\n" + styles["@global"].content
+                                }
+                            }
 
-                    for (const groupId in styles) {
-                        let { content, group } = styles[groupId]
+                            for (const groupId in styles) {
+                                let { content, group } = styles[groupId]
 
-                        content = CssLoader.minifier.minify(content).styles
+                                content = CssLoader.minifier.minify(content).styles
 
-                        const fileId = crypto.createHash("md5")
-                            .update(groupId)
-                            .update(content)
-                            .digest("hex")
-                            .substr(0, 10)
-                        const filename = `${this.registry.name}.${fileId}.css`
-                        const filePath = path.join(this.outDir || "", filename)
-                        compilation.assets[filePath] = new CssSource(content, group)
-                    }
+                                const fileId = crypto.createHash("md5")
+                                    .update(groupId)
+                                    .update(content)
+                                    .digest("hex")
+                                    .substr(0, 10)
+                                const filename = `${this.registry.name}.${fileId}.css`
+                                const filePath = path.join(this.outDir || "", filename)
+                                compilation.emitAsset(filePath, new CssSource(content, group))
+                            }
 
-                    callback()
-                })
-                .catch(err => {
-                    console.log(err)
-                    callback(err)
+                            callback()
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            callback(err)
+                        })
                 })
         })
+
+        // compiler.hooks.emit.tapAsync("NzStylePlugin", (compilation, callback) => {
+
+        // })
     }
 
     async loadFile(path) {

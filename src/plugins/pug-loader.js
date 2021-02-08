@@ -1,3 +1,4 @@
+const path = require("path")
 const webpack = require("webpack")
 const loaderUtil = require("loader-utils")
 const pug = require("pug")
@@ -111,7 +112,9 @@ function loader(content, options, cssPlugin) {
             defines: stylusDefines
         })
         const css = styl.render()
-        styl.deps().forEach(this.addDependency)
+        styl.deps()
+            .map(path.normalize.bind(path))
+            .forEach(this.addDependency.bind(this))
 
         if (attrs.shadow) {
             return `<style type="text/css">\n${css}</style>`

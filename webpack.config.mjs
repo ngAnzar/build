@@ -151,6 +151,10 @@ export default config({
         ],
         alias: {
             // "webpack-hot-client/client": resolve.sync("webpack-hot-client/client")
+        },
+        fallback: {
+            fs: false,
+            path: resolve.sync("path-browserify")
         }
     },
 
@@ -161,15 +165,9 @@ export default config({
         ].concat(options.node_modules)
     },
 
-    node: {
-        fs: "empty"
-    },
-
-    watchOptions: {
-        // maybe need better regex ...
-        // ignored: [/node_modules[\\\/](?!@anzar)/ig]
-        ignored: null
-    },
+    // node: {
+    //     fs: "empty"
+    // },
 
     optimization: {
         concatenateModules: !isDev,
@@ -198,7 +196,7 @@ export default config({
                     reuseExistingChunk: true,
                     priority: -20
                 },
-                vendors: {
+                defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
                     reuseExistingChunk: true,
                     name: "vendors",
