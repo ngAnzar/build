@@ -55,7 +55,7 @@ class NzDependencyRebuild {
             const deps = registry.dependencies()
             for (const rd of deps) {
                 compilation.fileDependencies.add(rd)
-                compilation.contextDependencies.add(path.dirname(rd))
+                // compilation.contextDependencies.add(path.dirname(rd))
             }
 
             callback()
