@@ -145,6 +145,7 @@ export default config({
             path.join(options.project_path, "src")
         ].concat(options.node_modules),
         plugins: [
+            // TODO: majd kicsit később ránézni megjavult-e
             // new TsConfigPathsPlugin({
             //     configFile: options.tsconfig
             // })
