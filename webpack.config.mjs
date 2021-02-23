@@ -145,9 +145,9 @@ export default config({
             path.join(options.project_path, "src")
         ].concat(options.node_modules),
         plugins: [
-            new TsConfigPathsPlugin({
-                configFile: options.tsconfig
-            })
+            // new TsConfigPathsPlugin({
+            //     configFile: options.tsconfig
+            // })
         ],
         alias: {
             // "webpack-hot-client/client": resolve.sync("webpack-hot-client/client")
