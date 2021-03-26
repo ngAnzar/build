@@ -179,13 +179,14 @@ export default config({
                     ecma: 8,
                     ie8: false,
                     safari10: false,
-                    mangle: !isDev,
+                    // mangle: !isDev,
+                    mangle: options.__ENV__ === "production",
                     compress: {
                         pure_funcs: ["console.info", "console.debug", "console.warn"],
                         drop_console: options.__ENV__ === "production"
                     },
                     output: {
-                        beautify: false
+                        beautify: options.__ENV__ !== "production"
                     }
                 }
             })
