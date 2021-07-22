@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "esnext",
-        "module": "esnext",
+        "target": "ES2020",
+        "module": "ES2020",
         "moduleResolution": "node",
         "sourceMap": true,
         "noEmitHelpers": true,
@@ -12,8 +12,8 @@
         "removeComments": true,
         "stripInternal": true,
         "lib": [
-            "es2019",
-            "dom"
+            "ES2020",
+            "DOM"
         ]
     },
     "angularCompilerOptions": {
