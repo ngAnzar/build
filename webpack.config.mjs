@@ -9,7 +9,7 @@ import DuplicatePackageCheckerPlugin from "duplicate-package-checker-webpack-plu
 import BundleAnalyzerPlugin from "webpack-bundle-analyzer"
 import TerserPlugin from "terser-webpack-plugin"
 import ngtools from "@ngtools/webpack"
-const AngularCompilerPlugin = ngtools.AngularCompilerPlugin
+const AngularWebpackPlugin = ngtools.AngularWebpackPlugin
 import resolve from "resolve"
 
 // import nzStyle from "./src/plugins/style__"
@@ -323,7 +323,7 @@ export default config({
     ].concat(
         options.__AOT__
             ? [
-                new AngularCompilerPlugin({
+                new AngularWebpackPlugin({
                     tsConfigPath: options.tsconfig,
                     basePath: options.project_path,
                     sourceMap: isDev,
