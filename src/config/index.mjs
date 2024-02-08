@@ -4,8 +4,8 @@ import fs from "fs"
 
 import resolve from "resolve"
 
-import { Config } from "./config"
-import { options } from "../options"
+import { Config } from "./config.mjs"
+import { options } from "../options.mjs"
 
 
 export const WEBPACK_CONFIG = "webpack.config.mjs"

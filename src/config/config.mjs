@@ -2,7 +2,7 @@ import path from "path"
 
 import { isPlainObject } from "is-plain-object"
 
-import { Merge, WhenMode, Constants, Substitute } from "./behaviors"
+import { Merge, WhenMode, Constants, Substitute } from "./behaviors.mjs"
 
 
 export class Config extends Array {

@@ -13,10 +13,10 @@ const AngularWebpackPlugin = ngtools.AngularWebpackPlugin
 import resolve from "resolve"
 
 // import nzStyle from "./src/plugins/style__"
-import { options, defines, config } from "./src"
-import putils from "./src/plugins/utils"
-import NzDependencyRebuild from "./src/plugins/nz-dependency-rebuild"
-import NzStylePlugin from "./src/plugins/style/plugin"
+import { options, defines, config } from "./src/index.mjs"
+import putils from "./src/plugins/utils.js"
+import NzDependencyRebuild from "./src/plugins/nz-dependency-rebuild.js"
+import NzStylePlugin from "./src/plugins/style/plugin.js"
 
 
 options.setAllDefault({

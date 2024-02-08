@@ -1,6 +1,6 @@
 import webpack from "webpack"
 
-import { Options, options } from "./options"
+import { Options } from "./options.mjs"
 
 
 const PROXY_PLUGIN = Symbol("PROXY_PLUGIN")

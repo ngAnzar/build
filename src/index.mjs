@@ -1,14 +1,6 @@
-export { config } from "./config"
-export { options } from "./options"
-export { defines } from "./defines"
-export { fancyOutput, fancyOutputEnabled } from "./util"
-import * as cli from "./cli"
+export { config } from "./config/index.mjs"
+export { options } from "./options.mjs"
+export { defines } from "./defines.mjs"
+export { fancyOutput, fancyOutputEnabled } from "./util.mjs"
+import * as cli from "./cli/index.mjs"
 export { cli }
-
-// import { Options } from "./options"
-// import { Defines } from "./defines"
-
-// export const stylus = {
-//     options: new Options(),
-//     defines: new Defines()
-// }

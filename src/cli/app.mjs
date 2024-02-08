@@ -2,8 +2,8 @@ import path from "path"
 import argparse from "argparse"
 import util from "util"
 
-import { importConfig } from "../config"
-import { options } from "../options"
+import { importConfig } from "../config/index.mjs"
+import { options } from "../options.mjs"
 
 
 export class Application {

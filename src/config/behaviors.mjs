@@ -2,8 +2,8 @@ import webpack from "webpack"
 import webpackMerge from "webpack-merge"
 import { isPlainObject } from "is-plain-object"
 
-import { Defines, DefinesProxy, defines } from "../defines"
-import { options } from "../options"
+import { Defines, DefinesProxy, defines } from "../defines.mjs"
+import { options } from "../options.mjs"
 
 export class Behavior {
     init(config, properties) { }
