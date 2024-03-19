@@ -12,6 +12,7 @@
         "removeComments": true,
         "stripInternal": true,
         "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true,
         "lib": [
             "ES2020",
             "DOM"
