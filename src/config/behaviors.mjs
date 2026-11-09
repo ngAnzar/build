@@ -1,18 +1,17 @@
+import isPlainObject from "is-plain-object"
 import webpack from "webpack"
 import webpackMerge from "webpack-merge"
-import { isPlainObject } from "is-plain-object"
 
-import { Defines, DefinesProxy, defines } from "../defines.mjs"
+import { Defines, defines, DefinesProxy } from "../defines.mjs"
 import { options } from "../options.mjs"
 
 export class Behavior {
-    init(config, properties) { }
+    init(config, properties) {}
 
-    merge(into, what) { }
+    merge(into, what) {}
 
-    postProcess(cfg) { }
+    postProcess(cfg) {}
 }
-
 
 export class SpecialProperty extends Behavior {
     constructor(key) {
@@ -59,7 +58,6 @@ export class SpecialProperty extends Behavior {
     }
 }
 
-
 export class WhenMode extends SpecialProperty {
     constructor() {
         super("whenMode")
@@ -86,9 +84,7 @@ export class WhenMode extends SpecialProperty {
     }
 }
 
-
 const DEFINES = Symbol("DEFINES")
-
 
 export class Constants extends SpecialProperty {
     constructor() {
@@ -117,9 +113,7 @@ export class Constants extends SpecialProperty {
         for (let name in value) {
             result.push((cfg, k, v, i) => {
                 if (!multiKey || multiKey === k) {
-                    cfg[DEFINES][i].set(name, () => {
-                        return value[name].call(cfg[DEFINES][i], v, k, i, cfg)
-                    })
+                    cfg[DEFINES][i].set(name, () => value[name].call(cfg[DEFINES][i], v, k, i, cfg))
                 }
             })
         }
@@ -154,7 +148,7 @@ export class Constants extends SpecialProperty {
     }
 
     _replaceProxy(defs, properties) {
-        this._replace(defs, properties, (value) => {
+        this._replace(defs, properties, value => {
             if (value instanceof DefinesProxy) {
                 return defs.object
             }
@@ -162,14 +156,13 @@ export class Constants extends SpecialProperty {
     }
 
     _replacePlugin(defs, properties) {
-        this._replace(defs, properties, (value) => {
+        this._replace(defs, properties, value => {
             if (value instanceof webpack.DefinePlugin && value.__anzar) {
                 return defs.plugin
             }
         })
     }
 }
-
 
 export class Substitute extends Behavior {
     init(cfg) {
@@ -190,7 +183,6 @@ export class Substitute extends Behavior {
         })
     }
 }
-
 
 export class Merge extends Behavior {
     init(config, properties) {
@@ -226,11 +218,9 @@ export class Merge extends Behavior {
     }
 }
 
-
 function mergeProps(a, b) {
     return webpackMerge.merge(a, b)
 }
-
 
 function inplaceConcat(dst, src) {
     dst.push.apply(dst, src)

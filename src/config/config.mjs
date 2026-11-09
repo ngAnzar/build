@@ -1,9 +1,7 @@
+import isPlainObject from "is-plain-object"
 import path from "path"
 
-import { isPlainObject } from "is-plain-object"
-
-import { Merge, WhenMode, Constants, Substitute } from "./behaviors.mjs"
-
+import { Constants, Merge, Substitute, WhenMode } from "./behaviors.mjs"
 
 export class Config extends Array {
     static coerce(config, isMulti) {
@@ -27,12 +25,7 @@ export class Config extends Array {
         })
 
         Object.defineProperty(this, "behaviors", {
-            value: [
-                new WhenMode(),
-                new Constants(),
-                new Merge(),
-                new Substitute()
-            ]
+            value: [new WhenMode(), new Constants(), new Merge(), new Substitute()]
         })
 
         this._init(cfg)
@@ -116,7 +109,7 @@ export class Config extends Array {
 
         const dirname = path.dirname(this.path)
         const recursion = []
-        const subst = (obj) => {
+        const subst = obj => {
             if (!obj) {
                 return obj
             }

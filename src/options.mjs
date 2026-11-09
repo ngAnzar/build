@@ -1,6 +1,6 @@
 import fs from "fs"
+import isPlainObject from "is-plain-object"
 import path from "path"
-import { isPlainObject } from "is-plain-object"
 
 const DATA = Symbol("DATA")
 
@@ -91,7 +91,7 @@ export class Options {
         if (typeof val === "function") {
             return val(this)
         } else if (val == null) {
-            return defaultValue == null ? null : defaultValue;
+            return defaultValue == null ? null : defaultValue
         } else {
             return val
         }
@@ -176,7 +176,6 @@ export class Options {
         })
     }
 }
-
 
 const options = new Options()
 const stylusOptions = new Options()
